@@ -36,7 +36,7 @@ export const AboutMe: React.FC = () => {
                                 <img 
                                   src={profileImage} 
                                   alt="Sourabh Singh - B.Tech Computer Engineering Student, Google Gemini Ambassador, and Full Stack AI Developer" 
-                                  className="w-full h-auto object-cover transform transition-transform duration-700 hover:scale-105"
+                                  className="w-full h-auto object-contain transform transition-transform duration-700 hover:scale-105"
                                   loading="lazy"
                                 />
                                 
