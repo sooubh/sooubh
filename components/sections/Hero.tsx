@@ -135,9 +135,9 @@ export const Hero: React.FC = () => {
                 
                 <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-[450px] lg:h-[450px] rounded-[2rem] lg:rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl shadow-google-blue/10 rotate-3 transition-all duration-500 hover:rotate-0 hover:scale-[1.02] bg-black/20">
                     <img 
-                        src="/assets/profile-ambassador.png" 
+                        src="/assets/hero1.webp" 
                         alt="Sourabh Singh - Google Gemini Ambassador and Full Stack Developer specializing in AI integration and modern web development" 
-                        className="w-full h-full object-contain object-bottom p-2 md:p-3 scale-100 transition-all duration-700 ease-in-out"
+                        className="w-full h-full object-cover object-center transition-all duration-700 ease-in-out"
                     />
                     
                     {/* Inner Texture/Overlay */}
