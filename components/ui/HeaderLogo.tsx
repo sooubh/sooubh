@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-import logo from '@/assets/logo.webp';
+import logo from '@/public/assets/logo.webp';
 
 export const HeaderLogo: React.FC = () => {
   const navigate = useNavigate();
