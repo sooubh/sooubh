@@ -1,3 +1,5 @@
+export const LINKEDIN_URL = 'https://linkedin.com/in/sooubh';
+
 export const content = {
     hero: {
         title: "Sourabh Singh",
@@ -46,7 +48,7 @@ export const content = {
         text: "Ready to collaborate or have questions about the AI ambassador program?",
         email: "sourabh3527@gmail.com",
         github: "https://github.com/sooubh",
-        linkedin: "https://linkedin.com/in/sooubh",
+        linkedin: LINKEDIN_URL,
         instagram: "https://instagram.com/sourabh_singg",
         twitter: "https://twitter.com/sourabh_singgh",
         formLink: "https://docs.google.com/forms/d/e/1FAIpQLSffT05FZXoT9BcOBtuVRDPpMu_P9CYOFOZASqmUAnkOQHkS4A/viewform"

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Github, Linkedin, Twitter, Mail, ExternalLink } from 'lucide-react';
+import { LINKEDIN_URL } from '../../lib/content';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -22,7 +23,7 @@ export const Footer: React.FC = () => {
 
   const socialLinks = [
     { icon: Github, href: 'https://github.com/sooubh', label: 'GitHub' },
-    { icon: Linkedin, href: 'https://linkedin.com/in/sourabh-singh', label: 'LinkedIn' },
+    { icon: Linkedin, href: LINKEDIN_URL, label: 'LinkedIn' },
     { icon: Twitter, href: 'https://twitter.com/sourabh_singgh', label: 'Twitter' },
     { icon: Mail, href: 'mailto:sourabh3527@gmail.com', label: 'Email' },
   ];

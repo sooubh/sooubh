@@ -2,9 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, Mail, ExternalLink, Award, GraduationCap } from 'lucide-react';
 import { SectionReveal } from '../ui/SectionReveal';
-import profileImage from '../../assets/profile-ambassador.png';
 
 export const AboutMe: React.FC = () => {
+  const profileImg = '/assets/profile-ambassador.png';
+
   return (
     <section className="min-h-screen bg-transparent text-white flex items-center py-20 relative z-10" id="about-me">
       <div className="container mx-auto px-6 max-w-7xl">
@@ -34,7 +35,7 @@ export const AboutMe: React.FC = () => {
                         <div className="relative rounded-[24px] p-2 bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-md shadow-2xl">
                             <div className="relative rounded-[20px] overflow-hidden bg-black/40">
                                 <img 
-                                  src={profileImage} 
+                                  src={profileImg} 
                                   alt="Sourabh Singh - B.Tech Computer Engineering Student, AI Builder & Developer, and Full Stack AI Developer" 
                                   className="w-full h-auto object-contain transform transition-transform duration-700 hover:scale-105"
                                   loading="lazy"
@@ -156,4 +157,3 @@ export const AboutMe: React.FC = () => {
     </section>
   );
 };
-

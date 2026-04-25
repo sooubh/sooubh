@@ -1,15 +1,46 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Send, Linkedin, Github, Instagram, Twitter, Copy, Check, Sparkles } from 'lucide-react';
+import { LINKEDIN_URL } from '../../lib/content';
 
 export const Contact: React.FC = () => {
   const [formState, setFormState] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: '',
+  });
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormState('sending');
-    setTimeout(() => setFormState('sent'), 1500);
+    setError(null);
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: import.meta.env.VITE_WEB3FORMS_KEY,
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setFormState('sent');
+      } else {
+        setFormState('idle');
+        setError(result?.message || 'Failed to send message. Please try again.');
+      }
+    } catch {
+      setFormState('idle');
+      setError('Network error. Please try again.');
+    }
   };
 
   const copyEmail = () => {
@@ -60,7 +91,7 @@ export const Contact: React.FC = () => {
 
                 {/* Social Orbit */}
                 <div className="flex justify-center lg:justify-start gap-4">
-                    <SocialOrb href="https://linkedin.com/in/sooubh" icon={Linkedin} color="hover:text-blue-500 hover:border-blue-500/50" delay={0} />
+                    <SocialOrb href={LINKEDIN_URL} icon={Linkedin} color="hover:text-blue-500 hover:border-blue-500/50" delay={0} />
                     <SocialOrb href="https://github.com/sooubh" icon={Github} color="hover:text-white hover:border-white/50" delay={0.1} />
                     <SocialOrb href="https://instagram.com/sourabh_singg" icon={Instagram} color="hover:text-pink-500 hover:border-pink-500/50" delay={0.2} />
                     <SocialOrb href="https://twitter.com/sourabh_singgh" icon={Twitter} color="hover:text-sky-400 hover:border-sky-400/50" delay={0.3} />
@@ -98,8 +129,12 @@ export const Contact: React.FC = () => {
                             </div>
                             <h5 className="text-xl font-bold text-white mb-2">Message Transmitted</h5>
                             <p className="text-gray-400">I'll get back to you at lightspeed.</p>
-                            <button 
-                                onClick={() => setFormState('idle')}
+                             <button 
+                                onClick={() => {
+                                    setFormState('idle');
+                                    setError(null);
+                                    setFormData({ name: '', email: '', message: '' });
+                                }}
                                 className="mt-8 text-sm text-google-blue hover:underline"
                             >
                                 Send another transmission
@@ -113,6 +148,8 @@ export const Contact: React.FC = () => {
                                     type="text" 
                                     required
                                     placeholder="Your Name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-google-blue/50 focus:bg-white/10 transition-all font-medium"
                                 />
                             </div>
@@ -122,6 +159,8 @@ export const Contact: React.FC = () => {
                                     type="email" 
                                     required
                                     placeholder="your@email.com"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-google-blue/50 focus:bg-white/10 transition-all font-medium"
                                 />
                             </div>
@@ -131,9 +170,13 @@ export const Contact: React.FC = () => {
                                     rows={4}
                                     required
                                     placeholder="Your Message..."
+                                    value={formData.message}
+                                    onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
                                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-google-blue/50 focus:bg-white/10 transition-all font-medium resize-none"
                                 />
                             </div>
+
+                            {error && <p className="text-red-400 text-sm">{error}</p>}
 
                             <motion.button 
                                 whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,1)" }}

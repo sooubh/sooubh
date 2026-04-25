@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import { ChatBot } from '../ui/ChatBot';
@@ -21,17 +21,22 @@ import { Footer } from '../ui/Footer';
 
 import { Preloader } from '../ui/Preloader';
 import { AnimatePresence } from 'framer-motion';
+import { useGalaxyStore } from '../../lib/store';
 
 export const Home: React.FC = () => {
     const location = useLocation();
     const [isLoading, setIsLoading] = React.useState(true);
-    const [isMobile, setIsMobile] = React.useState(false);
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+    const setSection = useGalaxyStore((state) => state.setSection);
 
     useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
+        setSection('section-s');
+    }, [setSection]);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     useEffect(() => {
@@ -39,6 +44,7 @@ export const Home: React.FC = () => {
             const scrollToId = (location.state as any).scrollTo;
             const element = document.getElementById(scrollToId);
             if (element) {
+                setSection(scrollToId);
                 // Small delay to ensure rendering
                 setTimeout(() => {
                     element.scrollIntoView({ behavior: 'smooth' });
@@ -47,7 +53,38 @@ export const Home: React.FC = () => {
                 window.history.replaceState({}, document.title);
             }
         }
-    }, [location]);
+    }, [location, setSection]);
+
+    useEffect(() => {
+        const sectionIds = ['section-s', 'section-o', 'section-u', 'section-r', 'section-a', 'section-b', 'section-h'];
+        const sections = sectionIds
+            .map((id) => document.getElementById(id))
+            .filter((section): section is HTMLElement => Boolean(section));
+
+        if (!sections.length) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visibleEntries = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+                if (visibleEntries.length > 0) {
+                    setSection(visibleEntries[0].target.id);
+                }
+            },
+            {
+                root: null,
+                // Use a centered observation band by shrinking the effective viewport by 20% from top and 55% from bottom.
+                rootMargin: '-20% 0px -55% 0px',
+                threshold: [0.2, 0.4, 0.6],
+            }
+        );
+
+        sections.forEach((section) => observer.observe(section));
+
+        return () => observer.disconnect();
+    }, [setSection]);
 
   return (
     <main className="bg-black text-white selection:bg-google-blue selection:text-white relative w-full overflow-x-hidden min-h-screen">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { LINKEDIN_URL } from '../../lib/content';
 
 export const Footer: React.FC = () => {
   return (
@@ -9,7 +10,7 @@ export const Footer: React.FC = () => {
           <span className="hidden sm:inline">•</span>
           <span className="font-medium text-google-blue">Ambassador ID: 12115</span>
           <span className="hidden sm:inline">•</span>
-          <a href="https://www.linkedin.com/in/sooubh" target="_blank" rel="noopener noreferrer" className="hover:text-google-blue transition-colors">LinkedIn</a>
+          <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="hover:text-google-blue transition-colors">LinkedIn</a>
           <span>•</span>
           <a href="https://www.instagram.com/sourabh_singg" target="_blank" rel="noopener noreferrer" className="hover:text-google-blue transition-colors">Instagram</a>
           <span className="hidden sm:inline">•</span>
