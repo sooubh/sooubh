@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Send, Linkedin, Github, Instagram, Twitter, Copy, Check, Sparkles } from 'lucide-react';
+import { LINKEDIN_URL } from '../../lib/content';
 
 export const Contact: React.FC = () => {
   const [formState, setFormState] = useState<'idle' | 'sending' | 'sent'>('idle');
@@ -60,7 +61,7 @@ export const Contact: React.FC = () => {
 
                 {/* Social Orbit */}
                 <div className="flex justify-center lg:justify-start gap-4">
-                    <SocialOrb href="https://linkedin.com/in/sooubh" icon={Linkedin} color="hover:text-blue-500 hover:border-blue-500/50" delay={0} />
+                    <SocialOrb href={LINKEDIN_URL} icon={Linkedin} color="hover:text-blue-500 hover:border-blue-500/50" delay={0} />
                     <SocialOrb href="https://github.com/sooubh" icon={Github} color="hover:text-white hover:border-white/50" delay={0.1} />
                     <SocialOrb href="https://instagram.com/sourabh_singg" icon={Instagram} color="hover:text-pink-500 hover:border-pink-500/50" delay={0.2} />
                     <SocialOrb href="https://twitter.com/sourabh_singgh" icon={Twitter} color="hover:text-sky-400 hover:border-sky-400/50" delay={0.3} />

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Github, Linkedin, Twitter, Mail, FileText } from 'lucide-react';
+import { LINKEDIN_URL } from '../../lib/content';
 
 export const Hero: React.FC = () => {
   const { scrollY } = useScroll();
@@ -10,7 +11,7 @@ export const Hero: React.FC = () => {
 
   const socialLinks = [
     { icon: Github, href: "https://github.com/sooubh", label: "GitHub" },
-    { icon: Linkedin, href: "https://linkedin.com/in/sourabh-singh", label: "LinkedIn" },
+    { icon: Linkedin, href: LINKEDIN_URL, label: "LinkedIn" },
     { icon: Twitter, href: "https://twitter.com/sourabh_singgh", label: "Twitter" },
     { icon: Mail, href: "mailto:sourabh3527@gmail.com", label: "Email" },
   ];

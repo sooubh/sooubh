@@ -7,6 +7,7 @@ import { ChatBot } from '../ui/ChatBot';
 import { GeminiOrb } from '../GeminiOrb';
 import { Particles } from '../ui/Particles';
 import { HeaderLogo } from '../ui/HeaderLogo';
+import { LINKEDIN_URL } from '../../lib/content';
 
 export const ContactPage: React.FC = () => {
     useEffect(() => {
@@ -76,7 +77,7 @@ export const ContactPage: React.FC = () => {
                         <div>
                              <h3 className="text-xl font-bold mb-6 text-gray-400 uppercase tracking-widest text-sm">Or find me on</h3>
                              <div className="grid grid-cols-2 gap-4">
-                                <SocialCard href="https://linkedin.com/in/sooubh" icon={Linkedin} label="LinkedIn" handle="@sooubh" color="hover:border-blue-500 hover:text-blue-500" />
+                                <SocialCard href={LINKEDIN_URL} icon={Linkedin} label="LinkedIn" handle="@sooubh" color="hover:border-blue-500 hover:text-blue-500" />
                                 <SocialCard href="https://github.com/sooubh" icon={Github} label="GitHub" handle="@sooubh" color="hover:border-white hover:text-white" />
                                 <SocialCard href="https://twitter.com/sourabh_singgh" icon={Twitter} label="Twitter / X" handle="@sourabh_singgh" color="hover:border-sky-400 hover:text-sky-400" />
                                 <SocialCard href="https://instagram.com/sourabh_singg" icon={Instagram} label="Instagram" handle="@sourabh_singg" color="hover:border-pink-500 hover:text-pink-500" />
