@@ -19,7 +19,7 @@ export const Ambassador: React.FC = () => {
           
           <div className="mb-12">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-2 leading-tight">
-              Sourabh Singh <span className="hidden md:inline text-gray-500 mx-2 font-light">|</span> <span className="block md:inline mt-2 md:mt-0 bg-gradient-to-r from-google-blue via-purple-500 to-google-red bg-clip-text text-transparent">Google Gemini Ambassador & Partner</span>
+              Sourabh Singh <span className="hidden md:inline text-gray-500 mx-2 font-light">|</span> <span className="block md:inline mt-2 md:mt-0 bg-gradient-to-r from-google-blue via-purple-500 to-google-red bg-clip-text text-transparent">AI Builder & Developer</span>
             </h2>
           </div>
           
@@ -36,7 +36,7 @@ export const Ambassador: React.FC = () => {
           
           <div className="max-w-2xl mx-auto text-gray-400 text-lg mb-16">
              <p className="mb-8 leading-relaxed">
-                "Partnering with Google to empower students with Gemini AI. My mission is to bridge the gap between technology and education, helping you create, innovate, and succeed in the AI era."
+                "Partnering with leading communities to empower students with AI. My mission is to bridge the gap between technology and education, helping you create, innovate, and succeed in the AI era."
              </p>
              <div className="flex justify-center items-center gap-2">
                <Award className="w-6 h-6 text-yellow-500" />
@@ -58,17 +58,17 @@ export const Ambassador: React.FC = () => {
               <div className="bg-white p-4 rounded-xl h-24 w-64 flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg shadow-white/5 hover:shadow-[0_0_30px_rgba(66,133,244,0.3)]">
                  <img 
                    src="/assets/sitrc-logo.png" 
-                   alt="Sandip Foundation's SITRC - Educational Institution and Partner supporting Sourabh Singh's Google Gemini Ambassador initiatives" 
+                   alt="Sandip Foundation's SITRC - Educational Institution and Partner supporting Sourabh Singh's AI Builder & Developer initiatives" 
                    className="h-full w-full object-contain hover:scale-105 transition-transform"
                    loading="lazy"
                  />
               </div>
 
-              {/* Google Student Ambassador Logo Construction */}
+              {/* Student Ambassador Logo Construction */}
               <div className="bg-white p-4 rounded-xl h-24 w-64 flex items-center justify-center gap-3 hover:scale-105 transition-all duration-300 shadow-lg shadow-white/5 hover:shadow-[0_0_30px_rgba(219,68,55,0.3)]">
                  <img 
                    src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" 
-                   alt="Google Student Ambassador Program - Official Partner Logo" 
+                   alt="Student Ambassador Program - Official Partner Logo" 
                    className="h-8 object-contain"
                    loading="lazy"
                  />
@@ -88,10 +88,10 @@ export const Ambassador: React.FC = () => {
                <p className="text-xs font-mono text-gray-600 mb-6 uppercase tracking-widest">Tech Ecosystem</p>
                <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
                    {[
-                     { name: 'Google Cloud', url: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg' },
+                     { name: 'Cloud Platform', url: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg' },
                      { name: 'TensorFlow', url: 'https://upload.wikimedia.org/wikipedia/commons/2/2d/Tensorflow_logo.svg' },
                      { name: 'Firebase', url: 'https://upload.wikimedia.org/wikipedia/commons/3/37/Firebase_Logo.svg' },
-                     { name: 'Google Developers', url: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Google_Developers_logo.svg' }
+                     { name: 'Developer Tools', url: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Google_Developers_logo.svg' }
                    ].map((logo, index) => (
                       <motion.div 
                         key={index}
@@ -101,7 +101,7 @@ export const Ambassador: React.FC = () => {
                         className="bg-white px-5 py-2 rounded-lg h-12 flex items-center justify-center hover:scale-105 transition-all duration-300 cursor-default hover:shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                         title={logo.name}
                       >
-                         <img src={logo.url} alt={`${logo.name} - Google technology used by Sourabh Singh`} className="h-5 w-auto object-contain" loading="lazy" />
+                         <img src={logo.url} alt={`${logo.name} - technology used by Sourabh Singh`} className="h-5 w-auto object-contain" loading="lazy" />
                       </motion.div>
                    ))}
                </div>

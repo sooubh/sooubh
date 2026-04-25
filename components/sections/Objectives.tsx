@@ -27,7 +27,7 @@ const cards = [
     {
         title: "The Strategy",
         icon: TrendingUp,
-        description: "Continuous learning, rapid prototyping, and community engagement. Leveraging the Google ecosystem to stay at the bleeding edge of innovation.",
+        description: "Continuous learning, rapid prototyping, and community engagement. Leveraging the modern AI ecosystem to stay at the bleeding edge of innovation.",
         color: "text-green-400",
         gradient: "from-green-500/20 to-transparent"
     }

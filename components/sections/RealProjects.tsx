@@ -16,10 +16,10 @@ const projects = [
     },
     {
         id: "02",
-        title: "Gemini Portfolio",
+        title: "AI Portfolio",
         category: "Creative Dev",
-        desc: "A next-generation personal website featuring voice-controlled navigation, 3D solar system visualizations, and a fully integrated AI assistant powered by Google's Gemini Pro.",
-        tags: ["Three.js", "Gemini API", "R3F", "Framer Motion"],
+        desc: "A next-generation personal website featuring voice-controlled navigation, 3D solar system visualizations, and a fully integrated AI assistant powered by advanced AI models.",
+        tags: ["Three.js", "AI API", "R3F", "Framer Motion"],
         link: "#",
         github: "#",
         color: "from-blue-400 to-purple-600",

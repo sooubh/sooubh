@@ -13,11 +13,11 @@ export const FooterCTA: React.FC = () => {
            <motion.h2 
              className="text-4xl md:text-6xl font-bold mb-6 tracking-tight"
            >
-              Ready to <span className="gemini-gradient-text">Innovate?</span>
+              Ready to <span className="ai-gradient-text">Innovate?</span>
            </motion.h2>
            
            <p className="text-lg md:text-xl text-gray-300 mb-10">
-              Fill out the form below to connect, collaborate, or join the Google Student Ambassador community.
+              Fill out the form below to connect, collaborate, or join the AI student community.
            </p>
            
            <div className="w-full bg-white/5 backdrop-blur-sm rounded-xl overflow-hidden border border-white/10 shadow-2xl">
@@ -26,7 +26,7 @@ export const FooterCTA: React.FC = () => {
                 width="640" 
                 height="800" 
                 className="w-full"
-                title="Google Ambassador Program Application"
+                title="AI Ambassador Program Application"
               >
                 Loading…
               </iframe>

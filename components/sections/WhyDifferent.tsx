@@ -5,7 +5,7 @@ import { MessageSquare, Code, Video, Search, Music, Image as ImageIcon, Layers, 
 const features = [
   { 
     id: 1, 
-    title: "Gemini Live", 
+    title: "AI Voice", 
     icon: <MessageSquare className="w-6 h-6 text-google-blue" />, 
     desc: "Real-time voice conversation with human-like responsiveness.",
     image: "https://images.unsplash.com/photo-1577563908411-5077b6dc7624?q=80&w=800&auto=format&fit=crop",
@@ -61,7 +61,7 @@ const features = [
     id: 7, 
     title: "Gems", 
     icon: <Layers className="w-6 h-6 text-cyan-400" />, 
-    desc: "Custom versions of Gemini for specific tasks.",
+    desc: "Custom AI assistants for specific tasks.",
     image: "https://images.unsplash.com/photo-1614850523060-8da1d56e37ad?q=80&w=800&auto=format&fit=crop",
     gradient: "from-cyan-500/20 to-blue-500/20",
     link: "#"
@@ -88,7 +88,7 @@ const Card: React.FC<CardProps> = ({ feature, index = 0, className = "" }) => {
         <div className="absolute inset-0 z-0">
            <img 
              src={feature.image} 
-             alt={`${feature.title} - Google Gemini AI feature showcased by Sourabh Singh`}
+             alt={`${feature.title} - AI feature showcased by Sourabh Singh`}
              className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-700"
              loading="lazy"
            />
@@ -132,7 +132,7 @@ export const WhyDifferent: React.FC = () => {
             viewport={{ once: true }}
           >
              <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white tracking-tighter">
-                The <span className="text-transparent bg-clip-text bg-gradient-to-r from-google-blue via-purple-500 to-google-red">Gemini Edge</span>
+                The <span className="text-transparent bg-clip-text bg-gradient-to-r from-google-blue via-purple-500 to-google-red">AI Edge</span>
              </h2>
           </motion.div>
           <motion.p 

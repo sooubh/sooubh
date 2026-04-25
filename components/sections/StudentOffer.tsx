@@ -13,8 +13,8 @@ export const StudentOffer: React.FC = () => {
   const opacity = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
 
   const benefits = [
-    "Gemini Advanced Model",
-    "2TB Google One Storage",
+    "Advanced AI Model",
+    "2TB Cloud Storage",
     "Python Coding in Canvas",
     "Context-Aware Homework Help",
     "Deep Research Capabilities"

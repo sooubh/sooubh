@@ -12,8 +12,8 @@ export const GalaxyScene: React.FC = () => {
         <Suspense fallback={null}>
             <fog attach="fog" args={['#050510', 5, 30]} />
             <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} intensity={1} color="#4285F4" /> {/* Google Blue */}
-            <pointLight position={[-10, -5, -10]} intensity={1} color="#DB4437" /> {/* Google Red */}
+            <pointLight position={[10, 10, 10]} intensity={1} color="#4285F4" /> {/* Accent Blue */}
+            <pointLight position={[-10, -5, -10]} intensity={1} color="#DB4437" /> {/* Accent Red */}
             
             <Starfield />
             <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
@@ -34,7 +34,7 @@ export const GalaxyScene: React.FC = () => {
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600">SINGH</span>
                         </h1>
                         <p className="text-cyan-200 text-xl md:text-2xl font-light tracking-widest uppercase">
-                            Google Ambassador • Web Innovator
+                            AI Builder • Web Innovator
                         </p>
                     </div>
                  </Html>

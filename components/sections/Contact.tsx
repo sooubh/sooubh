@@ -159,7 +159,7 @@ export const Contact: React.FC = () => {
         
         {/* Footer Integration */}
         <div className="mt-32 border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-            <p>© {new Date().getFullYear()} Sourabh Singh. Engineered with React & Gemini.</p>
+            <p>© {new Date().getFullYear()} Sourabh Singh. Engineered with React & AI.</p>
             <div className="flex gap-6 mt-4 md:mt-0 font-mono">
                 <a href="#" className="hover:text-google-blue transition-colors">Resume</a>
                 <a href="#" className="hover:text-google-blue transition-colors">Privacy Policy</a>

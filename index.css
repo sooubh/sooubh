@@ -23,7 +23,7 @@
   @apply rounded-full hover:bg-zinc-700;
 }
 
-.gemini-gradient-text {
+.ai-gradient-text {
   background: linear-gradient(90deg, #4285F4, #9B72CB, #D96570);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
