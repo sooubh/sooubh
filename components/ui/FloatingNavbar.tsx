@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const navItems = [
@@ -12,40 +12,27 @@ const navItems = [
 ];
 
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useGalaxyStore } from '../../lib/store';
 
 export const FloatingNavbar: React.FC = () => {
-  const [activeSection, setActiveSection] = useState('section-s');
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const currentSection = useGalaxyStore((state) => state.currentSection);
+  const setSection = useGalaxyStore((state) => state.setSection);
 
   useEffect(() => {
-    // Scroll handling (only relevant on Home page for active state)
-    if (location.pathname !== '/') {
-        setActiveSection(''); // No active section on other pages
-        return; 
-    }
-
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-
-      // Determine active section
-      const sections = navItems.map(item => document.getElementById(item.id));
-      const scrollPosition = window.scrollY + window.innerHeight / 3;
-
-      for (const section of sections) {
-        if (section && section.offsetTop <= scrollPosition && (section.offsetTop + section.offsetHeight) > scrollPosition) {
-          setActiveSection(section.id);
-          break;
-        }
-      }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname]);
+  }, []);
 
   const scrollToSection = (id: string) => {
+    setSection(id);
+
     if (location.pathname !== '/') {
         // Navigate to Home and pass the target section
         navigate('/', { state: { scrollTo: id } });
@@ -83,14 +70,14 @@ export const FloatingNavbar: React.FC = () => {
             <span 
               className={`
                 relative z-10 font-bold text-xs sm:text-base transition-colors duration-300
-                ${activeSection === item.id ? 'text-white' : 'text-white/50 group-hover:text-white/80'}
+                ${location.pathname === '/' && currentSection === item.id ? 'text-white' : 'text-white/50 group-hover:text-white/80'}
               `}
             >
               {item.label}
             </span>
             
             {/* Active Indicator */}
-            {activeSection === item.id && (
+            {location.pathname === '/' && currentSection === item.id && (
               <motion.div
                 layoutId="nav-pill"
                 className="absolute inset-0 bg-white/10 rounded-full border border-white/10"
