@@ -34,7 +34,7 @@ export const Hero: React.FC = () => {
                     className="inline-block"
                 >
                      <span className="px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-white/10 bg-white/5 text-xs md:text-sm font-medium tracking-widest uppercase text-google-blue backdrop-blur-sm shadow-[0_0_15px_rgba(66,133,244,0.3)]">
-                        Full Stack Developer • Google Ambassador
+                        Full Stack Developer • AI Builder
                      </span>
                 </motion.div>
 
@@ -136,7 +136,7 @@ export const Hero: React.FC = () => {
                 <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-[450px] lg:h-[450px] rounded-[2rem] lg:rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl shadow-google-blue/10 rotate-3 transition-all duration-500 hover:rotate-0 hover:scale-[1.02] bg-black/20">
                     <img 
                         src="/assets/hero1.webp" 
-                        alt="Sourabh Singh - Google Gemini Ambassador and Full Stack Developer specializing in AI integration and modern web development" 
+                        alt="Sourabh Singh - AI Builder & Developer and Full Stack Developer specializing in AI integration and modern web development" 
                         className="w-full h-full object-cover object-center transition-all duration-700 ease-in-out"
                     />
                     

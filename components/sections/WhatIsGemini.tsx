@@ -25,7 +25,7 @@ export const WhatIsGemini: React.FC = () => {
               <motion.p 
                 className="text-gray-400 text-lg md:text-xl mb-10"
               >
-                Google Gemini is a multimodal AI that can understand text, images, video, and audio. It helps students study smarter, not harder.
+                AI is a multimodal AI that can understand text, images, video, and audio. It helps students study smarter, not harder.
               </motion.p>
               
               <div className="flex flex-col gap-6">

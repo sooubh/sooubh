@@ -33,8 +33,8 @@ const SectionWrapper: React.FC<{ title: string; subtitle: string; children: Reac
 export const StoryMode: React.FC = () => {
   return (
     <div className="text-white">
-      {/* SECTION 5: GEMINI LIVE */}
-      <SectionWrapper title="Gemini Live" subtitle="Have natural conversations with AI. Interrupt, change topics, and brainstorm out loud.">
+      {/* SECTION 5: AI VOICE */}
+      <SectionWrapper title="AI Voice" subtitle="Have natural conversations with AI. Interrupt, change topics, and brainstorm out loud.">
         <div className="grid md:grid-cols-2 gap-8 items-center">
            <div className="space-y-6">
               {[
@@ -124,7 +124,7 @@ export const StoryMode: React.FC = () => {
             <div className="w-full md:w-1/3 bg-black/80 p-6 border-l border-white/10">
                <div className="flex items-center gap-2 mb-6 text-google-blue">
                   <Terminal size={18} />
-                  <span className="font-mono text-sm">Gemini Assistant</span>
+                  <span className="font-mono text-sm">AI Assistant</span>
                </div>
                <div className="bg-white/5 p-4 rounded-lg mb-4">
                   <p className="text-sm text-gray-300">I can help you expand on the ethical implications of AI in classrooms. Would you like some bullet points?</p>
@@ -262,7 +262,7 @@ export const StoryMode: React.FC = () => {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.2 }}
                >
-                  <img src={img} alt={`AI Generated Imagen 4 artwork example ${i + 1} - Google Gemini AI image generation feature`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                  <img src={img} alt={`AI Generated Imagen 4 artwork example ${i + 1} - AI image generation feature`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                      <p className="text-sm text-white">"A futuristic cityscape with flying cars in the style of synthwave..."</p>
                   </div>
@@ -272,7 +272,7 @@ export const StoryMode: React.FC = () => {
       </SectionWrapper>
 
       {/* SECTION 12: EXTENSIONS */}
-      <SectionWrapper title="Extensions" subtitle="Gemini works where you work.">
+      <SectionWrapper title="Extensions" subtitle="AI works where you work.">
          <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-80">
              {['Docs', 'Gmail', 'Drive', 'Maps', 'YouTube'].map((tool, i) => (
                 <motion.div 
@@ -288,7 +288,7 @@ export const StoryMode: React.FC = () => {
              ))}
          </div>
          <div className="mt-12 text-center text-gray-500">
-            <p>Connects seamlessly with your Google Workspace account.</p>
+            <p>Connects seamlessly with your productivity workspace account.</p>
          </div>
       </SectionWrapper>
       

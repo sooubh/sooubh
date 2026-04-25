@@ -15,8 +15,8 @@ export const Footer: React.FC = () => {
   ];
 
   const resources = [
-    { name: 'Gemini Ambassador Program', href: 'https://ai.google.dev/gemini-api', external: true },
-    { name: 'Google for Developers', href: 'https://developers.google.com/', external: true },
+    { name: 'AI Builder Program', href: 'https://ai.google.dev/gemini-api', external: true },
+    { name: 'Developer Resources', href: 'https://developers.google.com/', external: true },
     { name: 'Sitemap', href: '/sitemap.xml', external: false },
   ];
 
@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
               Sourabh Singh
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Official Google Gemini Ambassador (ID: 12115) specializing in AI integration and full-stack development.
+              Official AI Builder & Developer (ID: 12115) specializing in AI integration and full-stack development.
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -129,16 +129,16 @@ export const Footer: React.FC = () => {
             </p>
             <p className="flex items-center gap-2">
               <span>Powered by</span>
-              <span className="text-google-blue font-semibold">Google Gemini AI</span>
+              <span className="text-google-blue font-semibold">AI Assistant</span>
             </p>
           </div>
         </div>
 
         {/* SEO Keywords Footer (Hidden but indexed) */}
         <div className="sr-only">
-          Sourabh Singh | sourabh | Google Gemini Ambassador | Google Student Ambassador | 
+          Sourabh Singh | sourabh | AI Builder & Developer | Student Ambassador | 
           AI Developer | Full Stack Developer | React Developer | SITRC | Computer Engineering | 
-          AI Integration | Google AI | Gemini AI | Student Developer | Tech Ambassador
+          AI Integration | AI Tools | AI Assistant | Student Developer | Tech Ambassador
         </div>
       </div>
     </footer>

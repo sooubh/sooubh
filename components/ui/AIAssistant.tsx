@@ -272,10 +272,10 @@ export const AIAssistant: React.FC = () => {
                         <Bot size={18} className="text-white relative z-10" />
                         </div>
                         <div>
-                        <h3 className="font-bold text-white text-sm">Gemini Companion</h3>
+                        <h3 className="font-bold text-white text-sm">AI Companion</h3>
                         <div className="flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            <span className="text-xs text-gray-400">Gemini 1.5 Flash</span>
+                            <span className="text-xs text-gray-400">AI Fast Model</span>
                         </div>
                         </div>
                     </div>
@@ -346,7 +346,7 @@ export const AIAssistant: React.FC = () => {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                            placeholder="Ask Gemini..."
+                            placeholder="Ask AI..."
                             className="flex-1 bg-transparent border-none outline-none text-sm text-white placeholder-gray-500"
                         />
                         <button 

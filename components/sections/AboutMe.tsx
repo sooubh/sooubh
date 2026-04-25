@@ -35,7 +35,7 @@ export const AboutMe: React.FC = () => {
                             <div className="relative rounded-[20px] overflow-hidden bg-black/40">
                                 <img 
                                   src={profileImage} 
-                                  alt="Sourabh Singh - B.Tech Computer Engineering Student, Google Gemini Ambassador, and Full Stack AI Developer" 
+                                  alt="Sourabh Singh - B.Tech Computer Engineering Student, AI Builder & Developer, and Full Stack AI Developer" 
                                   className="w-full h-auto object-contain transform transition-transform duration-700 hover:scale-105"
                                   loading="lazy"
                                 />
@@ -65,7 +65,7 @@ export const AboutMe: React.FC = () => {
                   </h2>
                   
                   <p className="text-gray-400 text-sm md:text-base font-medium mb-8 leading-relaxed uppercase tracking-wide">
-                    B.Tech Computer Engineering Student | AI & Full-Stack Developer | Google Student Ambassador
+                    B.Tech Computer Engineering Student | AI & Full-Stack Developer
                   </p>
                   
                   <p className="text-gray-300 text-lg leading-relaxed mb-8">
@@ -83,8 +83,8 @@ export const AboutMe: React.FC = () => {
                       },
                       {
                         year: '2024 - Present',
-                        title: 'Google Gemini Ambassador',
-                        institution: 'Google Student Developer Clubs',
+                        title: 'AI Builder & Developer',
+                        institution: 'Student Developer Community',
                         desc: 'Leading AI workshops and community tech events.'
                       }
                     ].map((item, index) => (
@@ -106,20 +106,20 @@ export const AboutMe: React.FC = () => {
                     ))}
                   </div>
                   
-                  {/* Google Student Ambassador Highlight Block */}
+                  {/* AI Community Ambassador Highlight Block */}
                   <div className="bg-white/5 border-l-4 border-google-blue rounded-r-xl p-6 mb-10 backdrop-blur-sm">
                       <div className="flex items-center gap-3 mb-3">
                           <Award className="w-5 h-5 text-google-blue" />
-                          <h3 className="text-white font-bold text-lg">Google Student Ambassador</h3>
+                          <h3 className="text-white font-bold text-lg">AI Community Ambassador</h3>
                       </div>
                       <ul className="space-y-2 text-gray-400 text-sm">
                           <li className="flex items-start gap-2">
                               <span className="text-google-blue">•</span>
-                              Represent Google technologies on campus
+                              Represent modern developer technologies on campus
                           </li>
                           <li className="flex items-start gap-2">
                               <span className="text-google-blue">•</span>
-                              Promote Google AI, Gemini, and developer tools
+                              Promote AI tools and developer best practices
                           </li>
                           <li className="flex items-start gap-2">
                               <span className="text-google-blue">•</span>

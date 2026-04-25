@@ -4,7 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import { Mail, Calendar, MessageCircle, ChevronDown, Send, Check, Linkedin, Github, Twitter, Instagram } from 'lucide-react';
 import { FloatingNavbar } from '../ui/FloatingNavbar';
 import { ChatBot } from '../ui/ChatBot';
-import { GeminiOrb } from '../GeminiOrb';
+import { AI Orb } from '../AI Orb';
 import { Particles } from '../ui/Particles';
 import { HeaderLogo } from '../ui/HeaderLogo';
 
@@ -12,7 +12,7 @@ export const ContactPage: React.FC = () => {
     useEffect(() => {
         document.title = "Contact | Sourabh Singh";
         return () => {
-            document.title = "Sourabh Singh | Gemini Ambassador"; // Restore on unmount
+            document.title = "Sourabh Singh | AI Builder & Developer"; // Restore on unmount
         };
     }, []);
 
@@ -26,7 +26,7 @@ export const ContactPage: React.FC = () => {
                     <pointLight position={[10, 10, 10]} intensity={1.5} color="#fff" />
                     <pointLight position={[-10, -10, -10]} intensity={1} color="#DB4437" />
                     <Suspense fallback={null}>
-                        <GeminiOrb />
+                        <AI Orb />
                     </Suspense>
                 </Canvas>
             </div>
@@ -133,8 +133,8 @@ export const ContactPage: React.FC = () => {
                              <h3 className="text-xl font-bold mb-6 text-gray-400 uppercase tracking-widest text-sm">Frequently Asked Questions</h3>
                              <div className="space-y-4">
                                 <FaqItem q="Are you available for freelance?" a="Yes! I'm currently open to new projects, especially those involving AI integration and React." />
-                                <FaqItem q="What is your tech stack?" a="My core stack includes React, TypeScript, Node.js, and Google Gemini API. I also work with Flutter for mobile." />
-                                <FaqItem q="Do you do mentorship?" a="I am a Google Student Ambassador and love helping others. Feel free to reach out!" />
+                                <FaqItem q="What is your tech stack?" a="My core stack includes React, TypeScript, Node.js, and AI API. I also work with Flutter for mobile." />
+                                <FaqItem q="Do you do mentorship?" a="I actively mentor students and love helping others. Feel free to reach out!" />
                              </div>
                         </div>
 

@@ -117,7 +117,7 @@ export const GeminiAssistant: React.FC = () => {
                         {/* Header */}
                         <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-2xl">
                             <div className="flex items-center gap-2">
-                                <span className="text-google-blue font-bold">Gemini Assistant</span>
+                                <span className="text-google-blue font-bold">AI Assistant</span>
                                 <span className="text-xs bg-white/10 px-2 py-0.5 rounded text-gray-300">Beta</span>
                             </div>
                             <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white">

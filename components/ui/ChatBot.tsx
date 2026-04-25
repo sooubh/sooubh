@@ -132,7 +132,7 @@ export const ChatBot: React.FC = () => {
             },
             onError: (e) => {
                 console.error("Live Session Error", e);
-                dispatch({ type: 'SET_ERROR', payload: "Connection to Gemini Live lost. Retrying..." });
+                dispatch({ type: 'SET_ERROR', payload: "Connection to AI Voice lost. Retrying..." });
                 dispatch({ type: 'SET_LIVE_CONNECTED', payload: false });
             },
             onClose: () => {
@@ -389,7 +389,7 @@ export const ChatBot: React.FC = () => {
                  <button 
                     onClick={() => dispatch({ type: 'TOGGLE_LIVE' })}
                     className={`p-1.5 sm:p-2 rounded-full transition-colors touch-manipulation ${state.isLiveMode ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-gray-400 hover:text-white'}`}
-                    title="Toggle Gemini Live"
+                    title="Toggle AI Voice"
                   >
                     <Radio size={16} className="sm:w-[18px] sm:h-[18px]" />
                   </button>
@@ -483,7 +483,7 @@ export const ChatBot: React.FC = () => {
                       </div>
                       
                       <div>
-                          <h4 className="text-lg sm:text-xl font-bold text-white mb-2">Gemini Live</h4>
+                          <h4 className="text-lg sm:text-xl font-bold text-white mb-2">AI Voice</h4>
                           <motion.p 
                             className="text-gray-400 text-sm max-w-[200px] mx-auto"
                             animate={{ opacity: [0.5, 1, 0.5] }}

@@ -9,9 +9,9 @@ export const Achievements: React.FC = () => {
        id: "google-ambassador",
        size: "large", // col-span-2 row-span-2
        year: "2024",
-       title: "Google Gemini Ambassador",
+       title: "AI Builder & Developer",
        icon: <ShieldCheck className="w-8 h-8 text-google-blue" />,
-       desc: "Selected as a Global Student Ambassador for Google's Gemini AI ecosystem. Leading workshops, building AI-first solutions, and mentoring peers in GenAI technologies.",
+       desc: "Selected as a global student ambassador in the AI ecosystem. Leading workshops, building AI-first solutions, and mentoring peers in GenAI technologies.",
        color: "bg-google-blue/10 border-google-blue/20",
        glow: "shadow-[0_0_50px_rgba(66,133,244,0.2)]"
     },
@@ -22,7 +22,7 @@ export const Achievements: React.FC = () => {
        year: "2024",
        title: "GenAI Exchange Finalist",
        icon: <Trophy className="w-6 h-6 text-google-yellow" />,
-       desc: "Finalist in Google Cloud's GenAI Exchange Hackathon.",
+       desc: "Finalist in a global GenAI exchange hackathon.",
        color: "bg-google-yellow/10 border-google-yellow/20"
     },
     {

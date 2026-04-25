@@ -32,7 +32,7 @@ export const Services: React.FC = () => {
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
       });
       setResponse(result.text);
-      setModelUsed('Gemini 1.5 Pro');
+      setModelUsed('AI Pro Model');
     } catch (proError) {
       console.warn("Pro model failed, switching to fallback...", proError);
       try {
@@ -43,7 +43,7 @@ export const Services: React.FC = () => {
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
         });
         setResponse(result.text);
-        setModelUsed('Gemini 1.5 Flash (Fallback)');
+        setModelUsed('AI Fast Model (Fallback)');
       } catch (flashError) {
         console.error("All models failed", flashError);
         setResponse("I'm sorry, I'm having trouble connecting to my brain right now. Please try again later.");
@@ -60,7 +60,7 @@ export const Services: React.FC = () => {
                 AI Services
             </h1>
             <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-                Experience the power of Gemini. Ask anything, and let our advanced models assist you.
+                Experience the power of AI. Ask anything, and let our advanced models assist you.
             </p>
         </header>
 
@@ -68,12 +68,12 @@ export const Services: React.FC = () => {
              <div className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-google-blue/50 transition-colors">
                 <Brain className="w-8 h-8 text-google-blue mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Advanced Reasoning</h3>
-                <p className="text-sm text-gray-400">Powered by Gemini 1.5 Pro for complex problem solving.</p>
+                <p className="text-sm text-gray-400">Powered by AI 1.5 Pro for complex problem solving.</p>
              </div>
              <div className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/50 transition-colors">
                 <Zap className="w-8 h-8 text-purple-500 mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Fast Performance</h3>
-                <p className="text-sm text-gray-400">Optimized responses with fallback to Gemini 1.5 Flash.</p>
+                <p className="text-sm text-gray-400">Optimized responses with fallback to a fast AI model.</p>
              </div>
              <div className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-google-red/50 transition-colors">
                 <Shield className="w-8 h-8 text-google-red mb-4" />
@@ -88,7 +88,7 @@ export const Services: React.FC = () => {
                     <Bot className="text-white w-6 h-6" />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold">Ask Gemini</h2>
+                    <h2 className="text-2xl font-bold">Ask AI</h2>
                     <p className="text-xs text-gray-400 flex items-center gap-1">
                         {loading ? 'Thinking...' : modelUsed ? `Responded with ${modelUsed}` : 'Ready to help'}
                     </p>

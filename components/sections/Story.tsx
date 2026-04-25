@@ -16,16 +16,16 @@ const timelineData = [
     year: '2023',
     title: 'Full-Stack Evolution',
     institution: 'Self-Driven Learning',
-    description: 'Learning the MERN stack, Google Cloud Platform (GCP), and modern web technologies (React, TypeScript, Next.js). Started building complex projects and exploring the open-source ecosystem.',
+    description: 'Learning the MERN stack, cloud platforms, and modern web technologies (React, TypeScript, Next.js). Started building complex projects and exploring the open-source ecosystem.',
     icon: Code,
     color: 'text-purple-400',
     bgColor: 'bg-purple-400/10'
   },
   {
     year: '2024 - Present',
-    title: 'Google Gemini Ambassador',
-    institution: 'Google Student Developer Clubs',
-    description: 'Selected to represent Google technologies on campus. Leading workshops on GenAI, mentoring students, and organizing tech events to foster a culture of innovation.',
+    title: 'AI Builder & Developer',
+    institution: 'Student Developer Community',
+    description: 'Selected to represent AI technologies on campus. Leading workshops on GenAI, mentoring students, and organizing tech events to foster a culture of innovation.',
     icon: Award,
     color: 'text-yellow-400',
     bgColor: 'bg-yellow-400/10'
@@ -74,7 +74,7 @@ export const Story: React.FC = () => {
                     Crafting my <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Story</span>.
                 </h3>
                 <p className="max-w-2xl mx-auto text-gray-400 text-lg leading-relaxed">
-                    From writing my first line of code to leading communities as a Google Ambassador, my path is defined by a relentless curiosity and a drive to build.
+                    From writing my first line of code to leading communities as an AI Builder, my path is defined by a relentless curiosity and a drive to build.
                 </p>
             </motion.div>
 
