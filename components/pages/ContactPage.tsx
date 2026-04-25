@@ -158,11 +158,43 @@ export const ContactPage: React.FC = () => {
 
 const ContactForm = () => {
     const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
+    const [error, setError] = useState<string | null>(null);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+    });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setState('sending');
-        setTimeout(() => setState('sent'), 1500);
+        setError(null);
+
+        try {
+            const response = await fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    access_key: import.meta.env.VITE_WEB3FORMS_KEY,
+                    name: formData.name,
+                    email: formData.email,
+                    message: formData.message,
+                    subject: formData.subject,
+                }),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                setState('sent');
+            } else {
+                setState('idle');
+                setError(result?.message || 'Failed to send message. Please try again.');
+            }
+        } catch {
+            setState('idle');
+            setError('Network error. Please try again.');
+        }
     };
 
     if (state === 'sent') {
@@ -173,7 +205,16 @@ const ContactForm = () => {
                 </div>
                 <h4 className="text-xl font-bold text-white">Message Sent!</h4>
                 <p className="text-gray-400 mt-2">I'll get back to you shortly.</p>
-                <button onClick={() => setState('idle')} className="mt-6 text-google-blue text-sm hover:underline">Send another</button>
+                <button
+                    onClick={() => {
+                        setState('idle');
+                        setError(null);
+                        setFormData({ name: '', email: '', subject: '', message: '' });
+                    }}
+                    className="mt-6 text-google-blue text-sm hover:underline"
+                >
+                    Send another
+                </button>
             </div>
         );
     }
@@ -181,11 +222,39 @@ const ContactForm = () => {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-                <input required placeholder="Name" className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-google-blue/50 focus:outline-none transition-colors" />
-                <input required type="email" placeholder="Email" className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-google-blue/50 focus:outline-none transition-colors" />
+                <input
+                    required
+                    placeholder="Name"
+                    value={formData.name}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-google-blue/50 focus:outline-none transition-colors"
+                />
+                <input
+                    required
+                    type="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-google-blue/50 focus:outline-none transition-colors"
+                />
             </div>
-            <input required placeholder="Subject" className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-google-blue/50 focus:outline-none transition-colors" />
-            <textarea required rows={5} placeholder="Message" className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-google-blue/50 focus:outline-none transition-colors resize-none" />
+            <input
+                required
+                placeholder="Subject"
+                value={formData.subject}
+                onChange={(e) => setFormData((prev) => ({ ...prev, subject: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-google-blue/50 focus:outline-none transition-colors"
+            />
+            <textarea
+                required
+                rows={5}
+                placeholder="Message"
+                value={formData.message}
+                onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-google-blue/50 focus:outline-none transition-colors resize-none"
+            />
+
+            {error && <p className="text-red-400 text-sm">{error}</p>}
             
             <button disabled={state === 'sending'} className="w-full py-4 rounded-xl bg-white text-black font-bold flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors disabled:opacity-50">
                 {state === 'sending' ? 'Sending...' : <>Send Message <Send className="w-4 h-4" /></>}
