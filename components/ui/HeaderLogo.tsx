@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-import logo from '@/public/assets/logo.webp'; // adjust path if needed
+import logo from '@/assets/logo.webp';
 
 export const HeaderLogo: React.FC = () => {
   const navigate = useNavigate();
@@ -19,13 +19,13 @@ export const HeaderLogo: React.FC = () => {
       }}
     >
       {/* Logo Image */}
-      <div className="relative w-10 h-10 flex items-center justify-center">
+      <div className="relative w-12 h-12 flex items-center justify-center">
         <div className="absolute inset-0 bg-google-blue/20 rounded-xl rotate-3 group-hover:rotate-0 transition-transform duration-300 backdrop-blur-sm border border-google-blue/30" />
         
         <img
           src={logo}
           alt="logo"
-          className="w-7 h-7 object-contain relative z-10"
+          className="w-9 h-9 object-contain relative z-10"
         />
       </div>
 
