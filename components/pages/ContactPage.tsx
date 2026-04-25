@@ -4,7 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import { Mail, Calendar, MessageCircle, ChevronDown, Send, Check, Linkedin, Github, Twitter, Instagram } from 'lucide-react';
 import { FloatingNavbar } from '../ui/FloatingNavbar';
 import { ChatBot } from '../ui/ChatBot';
-import { AI Orb } from '../AI Orb';
+import { GeminiOrb } from '../GeminiOrb';
 import { Particles } from '../ui/Particles';
 import { HeaderLogo } from '../ui/HeaderLogo';
 
@@ -26,7 +26,7 @@ export const ContactPage: React.FC = () => {
                     <pointLight position={[10, 10, 10]} intensity={1.5} color="#fff" />
                     <pointLight position={[-10, -10, -10]} intensity={1} color="#DB4437" />
                     <Suspense fallback={null}>
-                        <AI Orb />
+                        <GeminiOrb />
                     </Suspense>
                 </Canvas>
             </div>
