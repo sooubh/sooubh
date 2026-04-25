@@ -26,9 +26,10 @@ export const FloatingNavbar: React.FC = () => {
       setScrolled(window.scrollY > 50);
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [location.pathname]);
 
   const scrollToSection = (id: string) => {
     setSection(id);
