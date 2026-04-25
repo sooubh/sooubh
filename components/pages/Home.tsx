@@ -75,7 +75,7 @@ export const Home: React.FC = () => {
             },
             {
                 root: null,
-                // Mark a section active once it is meaningfully in view (between ~20% from top and 55% from bottom).
+                // Use a centered observation band by shrinking the effective viewport by 20% from top and 55% from bottom.
                 rootMargin: '-20% 0px -55% 0px',
                 threshold: [0.2, 0.4, 0.6],
             }
