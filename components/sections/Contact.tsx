@@ -204,7 +204,7 @@ export const Contact: React.FC = () => {
         <div className="mt-32 border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
             <p>© {new Date().getFullYear()} Sourabh Singh. Engineered with React & AI.</p>
             <div className="flex gap-6 mt-4 md:mt-0 font-mono">
-                <a href="#" className="hover:text-google-blue transition-colors">Resume</a>
+                <a href="/assets/Sourabh_Singh_Resume-3.pdf" target="_blank" rel="noopener noreferrer" className="hover:text-google-blue transition-colors">Resume</a>
                 <a href="#" className="hover:text-google-blue transition-colors">Privacy Policy</a>
                 <a href="#" className="hover:text-google-blue transition-colors">Terms</a>
             </div>
