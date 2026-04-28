@@ -1,22 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0d1117"/>
-      <stop offset="100%" stop-color="#161b2e"/>
-    </linearGradient>
     <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#4285F4"/>
       <stop offset="100%" stop-color="#8B5CF6"/>
     </linearGradient>
   </defs>
-  <!-- Dark rounded background for browser-tab visibility -->
-  <rect width="48" height="48" rx="10" fill="url(#bg)"/>
   <!-- S monogram: cubic Bézier from upper-right (32,11) to lower-left (16,37).
        Control points (11,11) and (37,37) create the classic S crossover at the midpoint (24,24). -->
   <path
     d="M 32 11 C 11 11 37 37 16 37"
     stroke="url(#sg)"
-    stroke-width="5"
+    stroke-width="4.5"
     stroke-linecap="round"
     fill="none"
   />

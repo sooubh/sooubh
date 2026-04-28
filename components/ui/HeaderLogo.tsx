@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-import logo from '@/public/assets/logo.webp';
+import logo from '@/public/assets/logo.svg';
 
 export const HeaderLogo: React.FC = () => {
   const navigate = useNavigate();
@@ -19,13 +19,23 @@ export const HeaderLogo: React.FC = () => {
       }}
     >
       {/* Logo Image */}
-      <div className="relative w-12 h-12 flex items-center justify-center">
-        <div className="absolute inset-0 bg-google-blue/20 rounded-xl rotate-3 group-hover:rotate-0 transition-transform duration-300 backdrop-blur-sm border border-google-blue/30" />
-        
+      <div className="relative w-14 h-14 flex items-center justify-center">
+        <div
+          className={[
+            'absolute inset-0 rounded-xl rotate-3 backdrop-blur-sm',
+            'bg-gradient-to-br from-google-blue/20 to-purple-500/10',
+            'border border-google-blue/40',
+            'shadow-[0_0_18px_rgba(66,133,244,0.15)]',
+            'transition-all duration-300',
+            'group-hover:rotate-0 group-hover:border-google-blue/60',
+            'group-hover:shadow-[0_0_28px_rgba(66,133,244,0.3)]',
+          ].join(' ')}
+        />
+
         <img
           src={logo}
-          alt="logo"
-          className="w-9 h-9 object-contain relative z-10"
+          alt="Sourabh Singh logo"
+          className="w-11 h-11 object-contain relative z-10"
         />
       </div>
 
@@ -34,7 +44,7 @@ export const HeaderLogo: React.FC = () => {
         <span className="text-sm font-bold text-white tracking-wider uppercase">
           Sourabh
         </span>
-        <span className="text-[10px] text-gray-400 font-mono tracking-widest mt-1">
+        <span className="text-[10px] text-google-blue/70 font-mono tracking-widest mt-1">
           Singh
         </span>
       </div>
