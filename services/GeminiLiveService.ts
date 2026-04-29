@@ -1,4 +1,4 @@
-import { GoogleGenAI, LiveServerMessage, Modality } from "@google/genai";
+import { GoogleGenAI, LiveServerMessage, MediaResolution, Modality } from "@google/genai";
 
 // Infer LiveSession type as it's not exported directly
 type LiveSession = Awaited<ReturnType<InstanceType<typeof GoogleGenAI>["live"]["connect"]>>;
@@ -69,6 +69,10 @@ export class GeminiLiveService {
     private ai: GoogleGenAI;
     private session: LiveSession | null = null;
 
+    private responseQueue: LiveServerMessage[] = [];
+    private isClosed = false;
+    private turnLoopRunning = false;
+
     private inputAudioContext: AudioContext;
     private outputAudioContext: AudioContext;
     private mediaStream: MediaStream | null = null;
@@ -96,20 +100,17 @@ export class GeminiLiveService {
 
         // @ts-ignore - The SDK types for live.connect might vary by version
         this.sessionPromise = this.ai.live.connect({
-            model: 'models/gemini-2.5-flash-native-audio-preview-12-2025',
+            model: 'models/gemini-3.1-flash-live-preview',
             callbacks: {
                 onopen: () => {
                     console.log("GeminiLiveService: WebSocket connection opened.");
+                    this.isClosed = false;
                     this.setupMicrophone();
                     callbacks.onOpen();
+                    void this.runTurnLoop(callbacks);
                 },
                 onmessage: async (message: LiveServerMessage) => {
-                    console.log("GeminiLiveService: Received message", message);
-                    callbacks.onMessage(message);
-                    if (message.serverContent?.interrupted) {
-                        console.log("GeminiLiveService: Interruption signal received. Stopping playback.");
-                        this.stopAllPlayback();
-                    }
+                    this.responseQueue.push(message);
                 },
                 onerror: (e) => {
                     console.error("GeminiLiveService: WebSocket Error", e);
@@ -117,6 +118,7 @@ export class GeminiLiveService {
                 },
                 onclose: (e: any) => {
                     console.log("GeminiLiveService: WebSocket connection closed.");
+                    this.isClosed = true;
                     this.cleanup();
                     callbacks.onClose(e);
                 },
@@ -124,14 +126,67 @@ export class GeminiLiveService {
             config: {
                 // @ts-ignore - responseModalities type might be looser in some versions
                 responseModalities: [Modality.AUDIO],
+                // @ts-ignore - mediaResolution may be missing in older SDK types
+                mediaResolution: MediaResolution.MEDIA_RESOLUTION_MEDIUM,
                 speechConfig: {
                     voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } },
+                },
+                // @ts-ignore - contextWindowCompression may be missing in older SDK types
+                contextWindowCompression: {
+                    triggerTokens: "104857",
+                    slidingWindow: { targetTokens: "52428" },
                 },
                 systemInstruction: { parts: [{ text: systemInstruction }] },
             },
         });
         this.session = await this.sessionPromise;
         console.log("GeminiLiveService: Session connected successfully.");
+    }
+
+    private async runTurnLoop(callbacks: LiveCallbacks): Promise<void> {
+        if (this.turnLoopRunning) return;
+        this.turnLoopRunning = true;
+
+        try {
+            while (!this.isClosed) {
+                const turn = await this.handleTurn(callbacks);
+                if (turn.length === 0) break;
+            }
+        } finally {
+            this.turnLoopRunning = false;
+        }
+    }
+
+    private async handleTurn(callbacks: LiveCallbacks): Promise<LiveServerMessage[]> {
+        const turn: LiveServerMessage[] = [];
+        let done = false;
+
+        while (!done && !this.isClosed) {
+            const message = await this.waitMessage();
+            if (!message) break;
+
+            turn.push(message);
+            callbacks.onMessage(message);
+
+            if (message.serverContent?.interrupted) {
+                this.stopAllPlayback();
+            }
+
+            if (message.serverContent?.turnComplete) {
+                done = true;
+            }
+        }
+
+        return turn;
+    }
+
+    private async waitMessage(): Promise<LiveServerMessage | null> {
+        while (!this.isClosed) {
+            const message = this.responseQueue.shift();
+            if (message) return message;
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        return null;
     }
 
     private setupMicrophone(): void {
@@ -188,6 +243,7 @@ export class GeminiLiveService {
 
     private cleanup(): void {
         this.stopAllPlayback();
+        this.responseQueue = [];
         this.mediaStream?.getTracks().forEach(track => track.stop());
         this.scriptProcessor?.disconnect();
         this.mediaStreamSource?.disconnect();
@@ -199,6 +255,7 @@ export class GeminiLiveService {
     }
 
     public stopSession(): void {
+        this.isClosed = true;
         if (this.session) {
             this.session.close();
         }

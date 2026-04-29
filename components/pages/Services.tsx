@@ -26,7 +26,7 @@ export const Services: React.FC = () => {
 
     try {
       // Try with Pro model first
-      const model = 'gemini-1.5-pro';
+      const model = 'gemini-3.1-pro';
       const result = await ai.models.generateContent({
         model: model,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],

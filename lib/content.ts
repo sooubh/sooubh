@@ -4,7 +4,7 @@ export const content = {
     hero: {
         title: "Sourabh Singh",
         tagline: "AI Builder • Computer Engineering Student • AI & Web Innovator",
-        badge: "Official Partner ID: 12115",
+        badge: "Official Partner ID: 1175",
         buttons: [
             { text: "Explore My Universe", action: "explore" },
             { text: "Fill Form", action: "form", link: "https://docs.google.com/forms/d/e/1FAIpQLSffT05FZXoT9BcOBtuVRDPpMu_P9CYOFOZASqmUAnkOQHkS4A/viewform" }

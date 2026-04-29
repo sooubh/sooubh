@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { AudioRecorder } from '../utils/audioRecorder';
 import { AudioStreamPlayer } from '../utils/audioStreamPlayer';
 
-const MODEL = 'models/gemini-2.0-flash-exp';
+const MODEL = 'models/gemini-3.1-flash-live-preview';
 const WS_URL = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=`;
 
 export const useGeminiLive = () => {
@@ -28,7 +28,18 @@ export const useGeminiLive = () => {
                 setup: {
                     model: MODEL,
                     generationConfig: {
-                        responseModalities: ["AUDIO"]
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: {
+                                    voiceName: "Zephyr"
+                                }
+                            }
+                        },
+                        contextWindowCompression: {
+                            triggerTokens: 104857,
+                            slidingWindow: { targetTokens: 52428 }
+                        }
                     }
                 }
             };

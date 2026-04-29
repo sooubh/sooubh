@@ -4,7 +4,7 @@ import {
     Content,
     FunctionDeclaration,
     Tool,
-    Part
+    ThinkingLevel
 } from "@google/genai";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY!;
@@ -94,9 +94,10 @@ export const GeminiService = {
 
         try {
             const streamResult = await ai.models.generateContentStream({
-                model: "models/gemini-2.0-flash-exp",
+                model: "gemini-3-flash-preview",
                 contents,
                 config: {
+                    thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
                     systemInstruction: systemInstruction,
                     tools: TOOLS,
                     responseModalities: ["TEXT"],
