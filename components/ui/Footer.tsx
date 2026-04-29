@@ -7,6 +7,7 @@ export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
+    { name: 'Gemini Ambassador', href: '/gemini', internal: false },
     { name: 'Story', href: '#section-s', internal: true },
     { name: 'Objectives', href: '#section-o', internal: true },
     { name: 'Skills', href: '#section-u', internal: true },

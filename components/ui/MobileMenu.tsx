@@ -3,6 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+const pageItems = [
+  { path: '/', label: 'Home', desc: 'Main Portfolio' },
+  { path: '/services', label: 'AI Services', desc: 'Prompt Playground' },
+  { path: '/contact', label: 'Contact', desc: 'Get In Touch' },
+];
+
 const navItems = [
   { id: 'section-s', label: 'Story', desc: 'Journey & Education' },
   { id: 'section-o', label: 'Objectives', desc: 'Mission & Vision' },
@@ -44,6 +50,14 @@ export const MobileMenu: React.FC = () => {
     }, 300); // Wait for close animation
   };
 
+  const handleRoute = (path: string) => {
+    setIsOpen(false);
+    setTimeout(() => {
+      navigate(path);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 300);
+  };
+
   return (
     <>
       {/* Trigger Button - Mobile Only caused by the hidden md:block on Navbar, 
@@ -80,13 +94,39 @@ export const MobileMenu: React.FC = () => {
             </div>
 
             {/* Menu Items */}
-            <div className="flex-1 overflow-y-auto py-8 px-6 space-y-6">
+            <div className="flex-1 overflow-y-auto py-8 px-6 space-y-8">
+              <div className="space-y-4">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-gray-500">Pages</span>
+                {pageItems.map((item, index) => (
+                  <motion.button
+                    key={item.path}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => handleRoute(item.path)}
+                    className="w-full group text-left"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-3xl font-bold text-gray-300 group-hover:text-white transition-colors duration-300">
+                        {item.label}
+                      </span>
+                      <ArrowRight className="w-5 h-5 text-google-blue opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    </div>
+                    <span className="text-xs font-mono text-gray-600 uppercase tracking-widest group-hover:text-google-blue/80 transition-colors">
+                      {item.desc}
+                    </span>
+                  </motion.button>
+                ))}
+              </div>
+
+              <div className="space-y-4">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-gray-500">Home Sections</span>
                 {navItems.map((item, index) => (
                     <motion.button
                         key={item.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
+                  transition={{ delay: (pageItems.length + index) * 0.05 }}
                         onClick={() => handleNavigation(item.id)}
                         className="w-full group text-left"
                     >
@@ -101,6 +141,7 @@ export const MobileMenu: React.FC = () => {
                         </span>
                     </motion.button>
                 ))}
+                    </div>
             </div>
 
             {/* Footer */}

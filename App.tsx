@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Home } from './components/pages/Home';
 import { Services } from './components/pages/Services';
 import { ContactPage } from './components/pages/ContactPage';
+import { GeminiAmbassador } from './components/pages/GeminiAmbassador';
 import './types';
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/gemini" element={<GeminiAmbassador />} />
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<ContactPage />} />
       </Routes>

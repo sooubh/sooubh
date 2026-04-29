@@ -62,23 +62,27 @@ export const FloatingNavbar: React.FC = () => {
           ${scrolled ? 'bg-black/60 backdrop-blur-2xl shadow-2xl shadow-black/50 scale-90' : 'bg-black/20 backdrop-blur-xl shadow-lg'}
         `}
       >
-        {navItems.map((item) => (
+        {navItems.map((item) => {
+          const isActive = location.pathname === '/' && currentSection === item.id;
+          return (
           <button
             key={item.id}
-            onClick={() => scrollToSection(item.id)}
+            onClick={() => {
+              scrollToSection(item.id);
+            }}
             className="group relative flex flex-col items-center justify-center w-9 h-9 sm:w-12 sm:h-12"
           >
             <span 
               className={`
                 relative z-10 font-bold text-xs sm:text-base transition-colors duration-300
-                ${location.pathname === '/' && currentSection === item.id ? 'text-white' : 'text-white/50 group-hover:text-white/80'}
+                ${isActive ? 'text-white' : 'text-white/50 group-hover:text-white/80'}
               `}
             >
               {item.label}
             </span>
             
             {/* Active Indicator */}
-            {location.pathname === '/' && currentSection === item.id && (
+            {isActive && (
               <motion.div
                 layoutId="nav-pill"
                 className="absolute inset-0 bg-white/10 rounded-full border border-white/10"
@@ -91,7 +95,8 @@ export const FloatingNavbar: React.FC = () => {
                 {item.name}
             </span>
           </button>
-        ))}
+        );
+        })}
       </div>
     </motion.div>
   );
