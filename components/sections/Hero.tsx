@@ -4,6 +4,16 @@ import { Link } from 'react-router-dom';
 import { Github, Linkedin, Twitter, Mail, FileText, PlayCircle, Video } from 'lucide-react';
 import { LINKEDIN_URL } from '../../lib/content';
 
+type FeaturedVideo = {
+  title: string;
+  description: string;
+  embedUrl: string | null;
+  fileUrl: string | null;
+  fileType: string;
+  poster: string;
+  cta: { label: string; href: string };
+};
+
 export const Hero: React.FC = () => {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 200]);
@@ -16,16 +26,6 @@ export const Hero: React.FC = () => {
     { icon: Twitter, href: "https://twitter.com/sourabh_singgh", label: "Twitter" },
     { icon: Mail, href: "mailto:sourabh3527@gmail.com", label: "Email" },
   ];
-
-  type FeaturedVideo = {
-    title: string;
-    description: string;
-    embedUrl: string | null;
-    fileUrl: string | null;
-    fileType: string;
-    poster: string;
-    cta: { label: string; href: string };
-  };
 
   const featuredVideo: FeaturedVideo = {
     title: "Featured AI Demo",
@@ -307,12 +307,12 @@ export const Hero: React.FC = () => {
                 className="grid gap-4 sm:grid-cols-2"
             >
                 {videoShowcases.map((video) => {
-                    const CardLinkComponent = video.internal ? Link : 'a';
+                    const CardLink = video.internal ? Link : 'a';
                     const cardProps = video.internal
                         ? { to: video.href }
                         : { href: video.href, target: '_blank', rel: 'noopener noreferrer' };
                     return (
-                        <CardLinkComponent
+                        <CardLink
                             key={video.title}
                             {...cardProps}
                             className="group rounded-2xl border border-white/10 bg-black/40 p-4 transition hover:border-google-blue/40 hover:bg-black/60"
@@ -335,7 +335,7 @@ export const Hero: React.FC = () => {
                             </div>
                             <h4 className="mt-2 text-sm font-semibold text-white">{video.title}</h4>
                             <p className="mt-2 text-xs text-gray-400">{video.description}</p>
-                        </CardLinkComponent>
+                        </CardLink>
                     );
                 })}
             </motion.div>
