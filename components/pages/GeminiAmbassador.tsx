@@ -25,7 +25,7 @@ const isExternalLink = (href: string) => /^(https?:|mailto:)/.test(href);
 export const GeminiAmbassador: React.FC = () => {
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = 'Gemini Ambassador | Sourabh Singh';
+    document.title = 'Google Gemini Campus Ambassador | Sourabh Singh';
     return () => {
       document.title = previousTitle;
     };
@@ -37,12 +37,29 @@ export const GeminiAmbassador: React.FC = () => {
       <div className="pointer-events-none absolute -top-40 -right-40 h-96 w-96 rounded-full bg-gemini-cobalt/10 blur-[120px]" aria-hidden="true" />
       <div className="pointer-events-none absolute top-1/3 -left-40 h-80 w-80 rounded-full bg-gemini-mint/15 blur-[120px]" aria-hidden="true" />
 
-      <header className="relative z-10 flex items-center justify-between px-6 py-6 md:px-12">
-        <Link
-          to="/"
-          className="font-geminiDisplay text-sm uppercase tracking-[0.3em] text-gemini-ink/70 hover:text-gemini-ink transition"
-        >
-          Sourabh Singh
+      <header className="relative z-10 flex flex-wrap items-center justify-between gap-4 px-6 py-6 md:px-12">
+        <Link to="/" className="flex items-center gap-4">
+          <div className="flex items-center gap-3 rounded-full border border-gemini-ink/10 bg-white/80 px-3 py-2 shadow-sm">
+            <img
+              src="/assets/geminiLogo/Google Logo.png"
+              alt="Google logo"
+              className="h-5 w-auto object-contain"
+              loading="lazy"
+            />
+            <span className="h-5 w-px bg-gemini-ink/20" />
+            <img
+              src="/assets/geminiLogo/Google Gemini Logo on White.png"
+              alt="Google Gemini logo"
+              className="h-6 w-auto object-contain"
+              loading="lazy"
+            />
+          </div>
+          <div className="hidden sm:block">
+            <p className="font-geminiDisplay text-sm uppercase tracking-[0.3em] text-gemini-ink/70">
+              Gemini Campus Ambassador
+            </p>
+            <p className="text-xs text-gemini-dusk">Sourabh Singh</p>
+          </div>
         </Link>
         <div className="flex items-center gap-3 text-sm">
           <Link
@@ -64,9 +81,13 @@ export const GeminiAmbassador: React.FC = () => {
       <section className="relative z-10 px-6 pb-16 pt-6 md:px-12 md:pb-24">
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.1fr_0.9fr] items-center">
           <motion.div {...fadeUp} className="space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-gemini-ink/10 bg-white/70 px-4 py-2 text-xs uppercase tracking-[0.25em] text-gemini-ink/70">
+            <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-gemini-ink/10 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.25em] text-gemini-ink/70">
               <Sparkles className="h-4 w-4 text-gemini-cobalt" />
               {geminiContent.hero.badge}
+              <span className="h-3 w-px bg-gemini-ink/20" />
+              <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.3em] text-gemini-dusk">
+                GOOGLE • GEMINI
+              </span>
             </div>
             <div className="space-y-4">
               <h1 className="font-geminiDisplay text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-gemini-ink">
@@ -131,6 +152,57 @@ export const GeminiAmbassador: React.FC = () => {
               Gemini ambassador updates and proof are curated below.
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-6 pb-8 md:px-12 md:pb-12">
+        <div className="mx-auto max-w-6xl">
+          <motion.div {...fadeUp} className="flex flex-col gap-3">
+            <p className="text-xs uppercase tracking-[0.25em] text-gemini-ink/50">Task Tracks</p>
+            <h2 className="font-geminiDisplay text-3xl md:text-4xl">{geminiContent.tasks.title}</h2>
+            <p className="text-gemini-dusk max-w-2xl">{geminiContent.tasks.subtitle}</p>
+          </motion.div>
+          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {geminiContent.tasks.items.map((task, index) => {
+              const statusStyles: Record<string, string> = {
+                Mandatory: 'border-google-blue/30 bg-google-blue/10 text-google-blue',
+                Booster: 'border-google-yellow/40 bg-google-yellow/20 text-gemini-ink',
+                'Coming Soon': 'border-google-red/30 bg-google-red/10 text-google-red',
+              };
+              const isComingSoon = task.status === 'Coming Soon';
+              return (
+                <motion.div
+                  key={task.title}
+                  {...fadeUp}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  className="rounded-3xl border border-gemini-ink/10 bg-white/90 p-6 shadow-[0_20px_45px_rgba(32,33,36,0.08)] flex flex-col"
+                >
+                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-gemini-ink/50">
+                    <span className={`rounded-full border px-3 py-1 font-semibold ${statusStyles[task.status] || 'border-gemini-ink/10 bg-gemini-ink/5 text-gemini-ink'}`}>
+                      {task.status}
+                    </span>
+                    <span>Monthly</span>
+                  </div>
+                  <h3 className="mt-4 text-xl font-semibold text-gemini-ink">{task.title}</h3>
+                  <p className="mt-2 text-sm text-gemini-dusk">{task.description}</p>
+                  <div className="mt-6">
+                    {isComingSoon ? (
+                      <span className="inline-flex items-center justify-center rounded-full border border-google-red/40 bg-google-red/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-google-red">
+                        {task.cta.label}
+                      </span>
+                    ) : (
+                      <Link
+                        to={task.cta.href ?? '/contact'}
+                        className="inline-flex items-center justify-center rounded-full bg-google-blue px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-[0_10px_30px_rgba(66,133,244,0.35)] hover:bg-google-blue/90 transition"
+                      >
+                        {task.cta.label}
+                      </Link>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </section>
 

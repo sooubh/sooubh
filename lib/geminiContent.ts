@@ -1,12 +1,12 @@
 export const geminiContent = {
     hero: {
-        title: "Google Gemini Brand Ambassador",
-        subtitle: "Championing Gemini with community demos, campus workshops, and builder-led stories.",
-        badge: "Google Gemini Ambassador • Partner ID: 1175",
+        title: "Google Gemini Campus Ambassador",
+        subtitle: "Amplifying Gemini with campus demos, creator stories, and Google-led initiatives.",
+        badge: "Google Gemini Ambassador • Campus Partner ID: 1175",
         highlights: [
-            "Gemini demo days and live prompt labs",
-            "Campus workshops that ship real prototypes",
-            "Mentoring student builders and developer communities",
+            "Google Gemini demo nights and live prompt labs",
+            "Campus workshops that ship real AI prototypes",
+            "Creator-led content with Gemini-first storytelling",
         ],
         cta: {
             primary: { label: "Invite Me To Speak", href: "/contact" },
@@ -61,6 +61,48 @@ export const geminiContent = {
                 value: "TBD",
                 label: "Demos shipped",
                 detail: "Showcase prototypes and labs",
+            },
+        ],
+    },
+    tasks: {
+        title: "Monthly Task Playbook",
+        subtitle: "Six priority tracks aligned to Google & Gemini campus goals.",
+        items: [
+            {
+                title: "Product Trials (Mandatory)",
+                status: "Mandatory",
+                description: "Monthly Gemini Fun Night theme with a creative brief and on-campus execution.",
+                cta: { label: "Continue", href: "/contact" },
+            },
+            {
+                title: "Content Creation (Mandatory)",
+                status: "Mandatory",
+                description: "Monthly Reel showcasing Gemini features, demos, or student wins.",
+                cta: { label: "Continue", href: "/contact" },
+            },
+            {
+                title: "Monthly Highlights (Booster)",
+                status: "Booster",
+                description: "LinkedIn posts spotlighting ambassador journey and community outcomes.",
+                cta: { label: "Continue", href: "/contact" },
+            },
+            {
+                title: "Campus Interviews (Booster)",
+                status: "Booster",
+                description: "Monthly student AI interviews recorded on campus.",
+                cta: { label: "Continue", href: "/contact" },
+            },
+            {
+                title: "Product Understanding (Coming Soon)",
+                status: "Coming Soon",
+                description: "Sessions with Googlers and experts to deepen product knowledge.",
+                cta: { label: "Coming Soon" },
+            },
+            {
+                title: "Boost Google Initiatives (Booster)",
+                status: "Booster",
+                description: "Support Google's India campaigns and community activations.",
+                cta: { label: "Continue", href: "/contact" },
             },
         ],
     },
