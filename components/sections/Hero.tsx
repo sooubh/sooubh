@@ -77,7 +77,6 @@ export const Hero: React.FC = () => {
   ];
 
   const hasHeroVideo = Boolean(featuredVideo.embedUrl || featuredVideo.fileUrl);
-  const heroVideoSource = featuredVideo.fileUrl ?? '';
 
   return (
     <section className="min-h-screen relative flex items-center justify-center overflow-hidden pt-12 md:pt-20">
@@ -263,7 +262,7 @@ export const Hero: React.FC = () => {
                                     preload="metadata"
                                     poster={featuredVideo.poster}
                                 >
-                                    <source src={heroVideoSource} type={featuredVideo.fileType} />
+                                    <source src={featuredVideo.fileUrl ?? ''} type={featuredVideo.fileType} />
                                     Your browser does not support the video tag.
                                 </video>
                             )
