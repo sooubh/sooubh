@@ -132,9 +132,9 @@ const SectionWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =
     offset: ["start end", "end start"]
   });
 
-  const rotateX = useTransform(scrollYProgress, [0, 0.5, 1], [15, 0, -15]);
+  const rotateX = useTransform(scrollYProgress, [0, 0.5, 1], [10, 0, -10]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1, 0.9]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.95]);
 
   return (
     <motion.div
@@ -143,9 +143,9 @@ const SectionWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =
         rotateX,
         opacity,
         scale,
-        perspective: "1000px"
+        perspective: "1200px",
+        willChange: "transform, opacity"
       }}
-      className="transition-all duration-300 ease-out"
     >
       {children}
     </motion.div>
@@ -183,6 +183,17 @@ export const GeminiAmbassador: React.FC = () => {
     restDelta: 0.001
   });
 
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const [isHovering, setIsHovering] = useState(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   const videoShowcases = geminiContent.video.showcases ?? [];
   
   useEffect(() => {
@@ -195,9 +206,46 @@ export const GeminiAmbassador: React.FC = () => {
   }, []);
 
   return (
-    <main ref={containerRef} className="relative min-h-[300vh] bg-[#050505] text-white font-geminiBody selection:bg-white selection:text-black overflow-x-hidden">
+    <main 
+      ref={containerRef} 
+      className="relative min-h-[300vh] bg-[#050505] text-white font-geminiBody selection:bg-white selection:text-black overflow-x-hidden"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
       {/* 3D Background Scene */}
       <Interactive3DScene scrollYProgress={smoothProgress} />
+
+      {/* HD Reveal Spotlight - Optimized */}
+      <motion.div
+        className="pointer-events-none fixed z-40 hidden md:block rounded-full border border-white/10 shadow-[0_0_50px_rgba(255,255,255,0.1)]"
+        style={{
+          width: 400,
+          height: 400,
+          left: -200,
+          top: -200,
+          backdropFilter: 'contrast(1.25) brightness(1.2) saturate(1.1) blur(0px)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)',
+          willChange: "transform"
+        }}
+        animate={{
+          x: mousePos.x,
+          y: mousePos.y,
+          opacity: isHovering ? 1 : 0,
+          scale: isHovering ? 1 : 0
+        }}
+        transition={{ type: "spring", stiffness: 150, damping: 25, mass: 0.5 }}
+      />
+
+      {/* Mouse Spotlight Glow */}
+      <motion.div
+        className="pointer-events-none fixed inset-0 z-20 hidden md:block"
+        animate={{
+          background: isHovering 
+            ? `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.12) 0%, transparent 100%)`
+            : 'radial-gradient(0px circle at 0px 0px, transparent 0%, transparent 100%)'
+        }}
+        transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+      />
 
       {/* Cinematic Background Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
@@ -206,13 +254,16 @@ export const GeminiAmbassador: React.FC = () => {
       <header className="fixed top-0 left-0 right-0 z-50 px-6 py-6 md:px-12 mix-blend-difference">
         <div className="mx-auto max-w-7xl flex items-center justify-between">
           <Link to="/" className="group flex items-center gap-3">
-            <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/20 transition-transform group-hover:scale-110">
+            <motion.div 
+              className="relative h-8 w-8 overflow-hidden rounded-full border border-white/20 transition-transform group-hover:scale-110"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+            >
               <img
                 src="/assets/geminiLogo/Google Logo.png"
                 alt="Google"
                 className="h-full w-full object-contain p-1 invert"
               />
-            </div>
+            </motion.div>
             <div className="flex flex-col">
               <span className="font-geminiDisplay text-xs uppercase tracking-[0.3em] text-white">Ambassador</span>
               <span className="text-[10px] text-white/50 tracking-widest uppercase">Sourabh Singh</span>
@@ -264,6 +315,11 @@ export const GeminiAmbassador: React.FC = () => {
             className="font-geminiDisplay text-6xl md:text-8xl lg:text-[10rem] font-medium leading-[0.9] tracking-tighter"
           >
             SOURABH <br /> <span className="text-white/20 uppercase">SINGH</span>
+            
+            {/* Hidden Reveal Text - only clear in spotlight */}
+            <div className="absolute inset-0 pointer-events-none select-none opacity-0 md:group-hover:opacity-100 transition-opacity duration-500">
+               <span className="text-white/5 blur-sm uppercase">AI VISIONARY</span>
+            </div>
           </motion.h1>
 
           <motion.div
@@ -366,6 +422,8 @@ export const GeminiAmbassador: React.FC = () => {
                     src={video.thumbnail}
                     alt={video.title}
                     className="h-full w-full object-cover opacity-50 grayscale transition-all duration-1000 group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
                   
