@@ -27,118 +27,7 @@ import {
   MotionValue
 } from 'framer-motion';
 
-// --- Types ---
-interface SceneProps {
-  scrollYProgress: MotionValue<number>;
-}
-
-interface StarProps {
-  count: number;
-  radius: number;
-  depth?: number;
-  factor?: number;
-  saturation?: number;
-  fade?: boolean;
-  speed?: number;
-}
-
-// --- 3D Components ---
-const SceneContent: React.FC<SceneProps> = ({ scrollYProgress }) => {
-  const groupRef = React.useRef<THREE.Group>(null!);
-
-  useFrame(() => {
-    if (groupRef.current) {
-      const progress = scrollYProgress.get();
-      groupRef.current.rotation.y = progress * Math.PI * 2;
-      groupRef.current.position.y = -progress * 5;
-      const s = 1 + Math.sin(progress * Math.PI) * 0.5;
-      groupRef.current.scale.set(s, s, s);
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      <Float speed={2} rotationIntensity={1} floatIntensity={1}>
-        <Sphere args={[1, 64, 64]} position={[0, 0, 0]}>
-          <MeshDistortMaterial
-            color="#ffffff"
-            speed={3}
-            distort={0.4}
-            radius={1}
-            metalness={0.9}
-            roughness={0.1}
-            emissive="#1a1a1a"
-          />
-        </Sphere>
-      </Float>
-
-      {[...Array(20)].map((_, i) => (
-        <Float key={i} speed={1.5} rotationIntensity={2} floatIntensity={2}>
-          <mesh position={[
-            Math.sin(i) * 4,
-            Math.cos(i) * 4,
-            Math.sin(i * 0.5) * 2
-          ]}>
-            <boxGeometry args={[0.1, 0.1, 0.1]} />
-            <meshStandardMaterial color="#ffffff" metalness={0.8} roughness={0.2} emissive="#333333" />
-          </mesh>
-        </Float>
-      ))}
-    </group>
-  );
-};
-
-const Stars: React.FC<StarProps> = ({ count, radius, speed = 1 }) => {
-  const mesh = React.useRef<THREE.Points>(null!);
-  const [positions] = React.useState(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * radius * 2;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * radius * 2;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * radius * 2;
-    }
-    return pos;
-  });
-
-  useFrame(() => {
-    if (mesh.current) {
-      mesh.current.rotation.y += 0.0005 * speed;
-      mesh.current.rotation.x += 0.0002 * speed;
-    }
-  });
-
-  return (
-    <points ref={mesh}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={positions.length / 3}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial size={0.05} color="#ffffff" transparent opacity={0.5} sizeAttenuation />
-    </points>
-  );
-};
-
-const Interactive3DScene: React.FC<SceneProps> = ({ scrollYProgress }) => {
-  return (
-    <Canvas
-      shadows
-      dpr={[1, 2]} // Added for crisper rendering on high DPI screens
-      className="fixed inset-0 z-0 pointer-events-none"
-      camera={{ position: [0, 0, 5], fov: 45 }}
-    >
-      <ambientLight intensity={0.2} />
-      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} />
-
-      <SceneContent scrollYProgress={scrollYProgress} />
-      <Stars count={1000} radius={100} depth={50} factor={4} saturation={0} fade speed={1} />
-    </Canvas>
-  );
-};
+// Removed 3D components for maximum cleanliness and performance
 
 // --- Utilities & Wrappers ---
 const SectionWrapper: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
@@ -172,30 +61,30 @@ const SectionWrapper: React.FC<{ children: React.ReactNode; delay?: number }> = 
 // --- Local Content Additions ---
 const projectsData = [
   {
-    title: "Lovyn",
-    role: "Full-Stack Developer",
-    description: "A modern dating platform architected with Flutter for a fluid mobile experience and Firebase for real-time data synchronization and backend scalability.",
-    tags: ["Flutter", "Dart", "Firebase", "Mobile"]
+    title: "AI Peer Learning Labs",
+    role: "Campus Workshop",
+    description: "Hands-on sessions demystifying Google Gemini. Teaching peers how to leverage AI for coding, research, and creative problem-solving.",
+    tags: ["Education", "Prompt Engineering", "Community"]
   },
   {
-    title: "LedgerShield",
-    role: "Team Gen(AI)tics",
-    description: "Developed for the Microsoft Imagine Cup 2026. A security-focused AI implementation demonstrating advanced protective measures.",
-    tags: ["GenAI", "Microsoft", "Security", "Hackathon"]
+    title: "Prompt Battle Royales",
+    role: "Interactive Event",
+    description: "High-energy campus events where students compete to generate the best AI outputs, fostering rapid skill development and product adoption.",
+    tags: ["Event Management", "GenAI", "Engagement"]
   },
   {
-    title: "StockHealth AI",
-    role: "AI Engineer",
-    description: "An intelligent prototype leveraging the Snowflake Data Cloud and Cortex AI to process, analyze, and demystify complex data health metrics.",
-    tags: ["Snowflake", "Cortex AI", "Data Cloud"]
+    title: "Adoption & Analytics",
+    role: "Growth Strategy",
+    description: "Driving active student sign-ups and usage. Tracking engagement metrics to provide actionable feedback directly to the Google Gemini team.",
+    tags: ["Growth", "Analytics", "Feedback Loop"]
   }
 ];
 
 const techStack = [
-  { icon: <Smartphone className="w-6 h-6" />, name: "Mobile", tools: "Flutter, Dart" },
-  { icon: <Globe className="w-6 h-6" />, name: "Web", tools: "React, Next.js, Tailwind CSS" },
-  { icon: <Database className="w-6 h-6" />, name: "Backend", tools: "Firebase, Node.js" },
-  { icon: <Code2 className="w-6 h-6" />, name: "AI/Data", tools: "Gemini API, Snowflake, DSA" }
+  { icon: <Sparkles className="w-6 h-6" />, name: "AI Evangelism", tools: "Public Speaking, Product Demos" },
+  { icon: <Globe className="w-6 h-6" />, name: "Community", tools: "Discord, Campus Networks" },
+  { icon: <Code2 className="w-6 h-6" />, name: "API Integration", tools: "Gemini API, Webhooks" },
+  { icon: <Database className="w-6 h-6" />, name: "Data Feedback", tools: "User Metrics, Reporting" }
 ];
 
 // --- Main Page Component ---
@@ -276,7 +165,6 @@ export const GeminiAmbassador: React.FC = () => {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <Interactive3DScene scrollYProgress={smoothProgress} />
 
       {/* Custom Orb Cursor */}
       <motion.div
@@ -351,35 +239,50 @@ export const GeminiAmbassador: React.FC = () => {
           </video>
         </div>
 
-        <div className="relative z-20 max-w-5xl w-full text-center space-y-8">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none w-full flex justify-center z-0 overflow-hidden">
+          <motion.span 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 2, ease: "easeOut" }}
+            className="font-geminiDisplay text-[25vw] font-bold leading-none text-white/[0.015] whitespace-nowrap"
+          >
+            GEMINI
+          </motion.span>
+        </div>
+
+        <div className="relative z-20 max-w-5xl w-full text-center space-y-12">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md"
+            className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md shadow-[0_0_30px_rgba(255,255,255,0.05)]"
           >
-            <Sparkles className="h-3.5 w-3.5 text-white" />
-            <span className="text-[10px] uppercase tracking-[0.4em] text-white/70">Google Gemini Campus Partner</span>
+            <Sparkles className="h-4 w-4 text-white" />
+            <span className="text-[10px] uppercase tracking-[0.5em] text-white/80 font-bold">Google Gemini Campus Partner</span>
           </motion.div>
 
           <div ref={heroRef} className="relative group flex flex-col items-center justify-center">
+            {/* Base Layer */}
             <motion.h1 
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               style={{ WebkitMaskImage: inverseRevealMask, maskImage: inverseRevealMask }}
               transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              onMouseEnter={() => setSpotlightSize(350)}
-              onMouseLeave={() => setSpotlightSize(24)}
-              className="font-geminiDisplay text-6xl md:text-8xl lg:text-[10rem] font-medium leading-[0.85] tracking-tighter text-center"
+              onMouseEnter={() => setSpotlightSize(600)}
+              onMouseLeave={() => setSpotlightSize(12)}
+              className="font-geminiDisplay font-medium leading-[0.85] tracking-tighter text-center flex flex-col items-center"
             >
-              SOURABH <br /> <span className="text-white/20 uppercase">SINGH</span>
+              <span className="text-7xl md:text-[11rem] lg:text-[13rem]">SOURABH</span>
+              <span className="text-7xl md:text-[11rem] lg:text-[13rem] text-white/20 uppercase">SINGH</span>
             </motion.h1>
 
+            {/* Reveal Layer */}
             <motion.h1 
               style={{ WebkitMaskImage: revealMask, maskImage: revealMask }}
-              className="absolute inset-0 flex flex-col items-center justify-center font-geminiDisplay text-6xl md:text-8xl lg:text-[10rem] font-medium leading-[0.85] tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-zinc-400 to-zinc-600 z-10 pointer-events-none text-center"
+              className="absolute inset-0 flex flex-col items-center justify-center font-geminiDisplay font-medium leading-[0.85] tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-zinc-400 to-zinc-700 z-10 pointer-events-none text-center"
             >
-              GEMINI <br /> AMBASSADOR
+              <span className="text-7xl md:text-[11rem] lg:text-[13rem]">GEMINI</span>
+              <span className="text-4xl md:text-[6rem] lg:text-[8rem] uppercase">AMBASSADOR</span>
             </motion.h1>
           </div>
 
@@ -387,7 +290,7 @@ export const GeminiAmbassador: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto max-w-xl text-lg md:text-xl text-white/50 font-light leading-relaxed"
+            className="mx-auto max-w-2xl text-xl md:text-2xl text-white/50 font-light leading-relaxed tracking-wide"
           >
             {geminiContent.hero?.subtitle}
           </motion.p>
@@ -396,18 +299,18 @@ export const GeminiAmbassador: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8"
           >
             <Link
               to={geminiContent.hero?.cta?.primary?.href || "#"}
-              className="group flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-medium transition-all hover:scale-105"
+              className="group flex items-center gap-4 px-10 py-5 bg-white text-black rounded-full font-bold text-[10px] uppercase tracking-[0.3em] transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]"
             >
               {geminiContent.hero?.cta?.primary?.label || "Explore"}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               to={geminiContent.hero?.cta?.secondary?.href || "#"}
-              className="px-8 py-4 border border-white/20 hover:bg-white/5 rounded-full font-medium transition-all"
+              className="px-10 py-5 border border-white/20 hover:bg-white/10 rounded-full font-bold text-[10px] uppercase tracking-[0.3em] transition-all"
             >
               {geminiContent.hero?.cta?.secondary?.label || "Learn More"}
             </Link>
@@ -418,30 +321,50 @@ export const GeminiAmbassador: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 1.5 }}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 cursor-pointer"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 cursor-pointer z-20"
           onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
         >
-          <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">Explore Journey</span>
-          <ChevronDown className="h-4 w-4 text-white/30 animate-bounce" />
+          <div className="w-[1px] h-12 bg-gradient-to-b from-white/0 via-white/50 to-white/0 animate-pulse" />
+          <span className="text-[9px] uppercase tracking-[0.4em] text-white/40">Scroll to explore</span>
         </motion.div>
       </section>
 
-      {/* Metrics Section */}
+      {/* NEW: Infinite Marquee Banner */}
+      <div className="relative z-20 border-y border-white/5 bg-[#020202] py-6 overflow-hidden flex whitespace-nowrap">
+        <motion.div 
+          className="flex gap-16 items-center"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          {[...Array(4)].map((_, i) => (
+            <React.Fragment key={i}>
+              <span className="text-sm font-geminiDisplay uppercase tracking-[0.5em] text-white/60">Google Gemini Ambassador</span>
+              <Sparkles className="h-4 w-4 text-white/20" />
+              <span className="text-sm font-geminiDisplay uppercase tracking-[0.5em] text-white/60">AI Visionary</span>
+              <Sparkles className="h-4 w-4 text-white/20" />
+              <span className="text-sm font-geminiDisplay uppercase tracking-[0.5em] text-white/60">Campus Evangelist</span>
+              <Sparkles className="h-4 w-4 text-white/20" />
+            </React.Fragment>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Metrics Section - REDESIGNED */}
       <section 
-        className="relative z-10 py-32 px-6"
+        className="relative z-10 py-32 px-6 border-b border-white/5"
         onMouseEnter={() => setSpotlightSize(250)}
-        onMouseLeave={() => setSpotlightSize(24)}
+        onMouseLeave={() => setSpotlightSize(12)}
       >
         <SectionWrapper>
           <div className="mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-24 text-center">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-16 md:gap-8 divide-y md:divide-y-0 md:divide-x divide-white/10">
               {geminiContent.metrics?.items?.map((stat, idx) => (
-                <div key={stat.label} className="space-y-4">
-                  <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">{stat.label}</span>
-                  <div className="text-6xl md:text-8xl font-geminiDisplay font-medium tracking-tighter text-white">
+                <div key={stat.label} className="flex-1 w-full flex flex-col items-center text-center pt-8 md:pt-0">
+                  <span className="text-[10px] uppercase tracking-[0.4em] text-white/30 mb-6">{stat.label}</span>
+                  <div className="text-7xl md:text-[8rem] font-geminiDisplay font-medium tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20 leading-none mb-6">
                     {stat.value === 'TBD' ? '0' + (idx + 1) : stat.value}
                   </div>
-                  <p className="text-sm text-white/50 leading-relaxed max-w-[200px] mx-auto">{stat.detail}</p>
+                  <p className="text-sm text-white/40 leading-relaxed max-w-[240px] font-light">{stat.detail}</p>
                 </div>
               ))}
             </div>
@@ -454,33 +377,36 @@ export const GeminiAmbassador: React.FC = () => {
         <div className="mx-auto max-w-7xl">
           <SectionWrapper>
             <div className="mb-20 space-y-6 text-center md:text-left">
-              <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">Innovations</span>
+              <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">Ambassador Initiatives</span>
               <h2 className="font-geminiDisplay text-5xl md:text-8xl font-medium tracking-tighter leading-none">
-                BUILT <br /> <span className="text-white/20">PROJECTS</span>
+                CAMPUS <br /> <span className="text-white/20">MISSIONS</span>
               </h2>
             </div>
           </SectionWrapper>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {projectsData.map((project, idx) => (
               <SectionWrapper key={project.title} delay={idx * 0.1}>
                 <motion.div 
-                  whileHover={{ y: -10 }}
-                  className="h-full p-8 rounded-[2rem] bg-white/[0.02] border border-white/10 hover:border-white/30 hover:bg-white/[0.05] transition-all flex flex-col justify-between group backdrop-blur-sm"
+                  className="relative h-[450px] p-10 rounded-[2.5rem] bg-gradient-to-b from-white/[0.03] to-transparent border border-white/5 hover:border-white/20 transition-all flex flex-col justify-between group overflow-hidden"
                 >
-                  <div>
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="h-10 w-10 rounded-full border border-white/20 flex items-center justify-center bg-white/5 group-hover:scale-110 transition-transform">
-                        <Code2 className="h-4 w-4 text-white" />
+                  {/* Hover Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                  
+                  <div className="relative z-10">
+                    <div className="flex justify-between items-start mb-8">
+                      <div className="h-14 w-14 rounded-2xl border border-white/10 flex items-center justify-center bg-black/50 backdrop-blur-md group-hover:scale-110 group-hover:bg-white group-hover:text-black transition-all duration-500">
+                        <Code2 className="h-6 w-6" />
                       </div>
-                      <span className="text-[9px] uppercase tracking-widest text-white/40">{project.role}</span>
                     </div>
-                    <h3 className="text-2xl font-medium mb-4 group-hover:text-white transition-colors">{project.title}</h3>
-                    <p className="text-sm text-white/50 leading-relaxed mb-8">{project.description}</p>
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 block mb-4">{project.role}</span>
+                    <h3 className="text-3xl font-medium mb-4 tracking-tight group-hover:text-white transition-colors">{project.title}</h3>
+                    <p className="text-base text-white/50 font-light leading-relaxed mb-8">{project.description}</p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  
+                  <div className="relative z-10 flex flex-wrap gap-2">
                     {project.tags.map(tag => (
-                      <span key={tag} className="px-3 py-1 rounded-full border border-white/10 text-[9px] uppercase tracking-wider text-white/60 group-hover:border-white/30 group-hover:text-white/80 transition-colors">
+                      <span key={tag} className="px-4 py-1.5 rounded-full border border-white/10 text-[9px] uppercase tracking-[0.2em] text-white/60 bg-black/40 backdrop-blur-sm group-hover:border-white/30 group-hover:text-white transition-colors">
                         {tag}
                       </span>
                     ))}
@@ -492,37 +418,56 @@ export const GeminiAmbassador: React.FC = () => {
         </div>
       </section>
 
-      {/* NEW: Tech Stack Section */}
-      <section className="relative z-10 py-32 px-6">
+      {/* NEW: Tech Stack Section - BENTO GRID */}
+      <section className="relative z-10 py-32 px-6 border-t border-white/5 bg-[#030303]">
         <div className="mx-auto max-w-7xl">
           <SectionWrapper>
-            <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-16">
+            <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-20">
               <div className="space-y-6">
-                <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">Arsenal</span>
-                <h2 className="font-geminiDisplay text-5xl md:text-7xl font-medium tracking-tighter leading-[0.9]">
-                  TECHNICAL <br /> <span className="text-white/20">STACK</span>
+                <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">Core Responsibilities</span>
+                <h2 className="font-geminiDisplay text-5xl md:text-8xl font-medium tracking-tighter leading-[0.85]">
+                  AMBASSADOR <br /> <span className="text-white/20">TOOLKIT</span>
                 </h2>
               </div>
-              <p className="max-w-sm text-white/50 text-right font-light">
-                Full-stack expertise powering next-generation mobile and web applications.
+              <p className="max-w-md text-white/50 text-left md:text-right font-light text-lg">
+                The essential skills and strategies used to foster AI awareness and adoption among undergraduate students.
               </p>
             </div>
           </SectionWrapper>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {techStack.map((tech, idx) => (
-              <SectionWrapper key={tech.name} delay={idx * 0.05}>
-                <div className="p-8 rounded-[1.5rem] bg-gradient-to-br from-white/[0.05] to-transparent border border-white/5 hover:border-white/20 transition-all flex flex-col items-center text-center gap-4 group">
-                  <div className="text-white/40 group-hover:text-white transition-colors group-hover:scale-110 duration-300">
-                    {tech.icon}
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            {/* Featured AI Card */}
+            <div className="md:col-span-8">
+              <SectionWrapper delay={0.1}>
+                <div className="h-full p-12 rounded-[2.5rem] bg-gradient-to-br from-white/[0.05] to-transparent border border-white/10 hover:border-white/30 transition-all flex flex-col justify-between group overflow-hidden relative">
+                  <Sparkles className="absolute top-12 right-12 h-32 w-32 text-white/5 group-hover:text-white/10 transition-colors duration-700 group-hover:rotate-12" />
                   <div>
-                    <h4 className="text-sm font-medium mb-1">{tech.name}</h4>
-                    <p className="text-[10px] uppercase tracking-widest text-white/30">{tech.tools}</p>
+                    <div className="h-16 w-16 rounded-2xl bg-white text-black flex items-center justify-center mb-10 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                      <Database className="h-8 w-8" />
+                    </div>
+                    <h4 className="text-3xl font-medium mb-4">Gemini API Advocacy</h4>
+                    <p className="text-lg text-white/50 max-w-md font-light leading-relaxed">Acting as the primary technical point of contact, helping peers integrate Google's Generative AI models into their own applications and hackathon projects.</p>
                   </div>
                 </div>
               </SectionWrapper>
-            ))}
+            </div>
+
+            {/* Side Cards */}
+            <div className="md:col-span-4 flex flex-col gap-6">
+              {techStack.slice(0, 2).map((tech, idx) => (
+                <SectionWrapper key={tech.name} delay={0.2 + (idx * 0.1)}>
+                  <div className="h-full p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-white/20 transition-all flex flex-col gap-6 group">
+                    <div className="h-12 w-12 rounded-xl bg-black border border-white/10 text-white flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors duration-500">
+                      {tech.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-medium mb-2">{tech.name}</h4>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">{tech.tools}</p>
+                    </div>
+                  </div>
+                </SectionWrapper>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -619,21 +564,23 @@ export const GeminiAmbassador: React.FC = () => {
               </SectionWrapper>
             </div>
 
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-8">
               {geminiContent.tasks?.items?.map((task, idx) => (
                 <SectionWrapper key={task.title} delay={idx * 0.1}>
-                  <div className="p-12 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-white/20 transition-all group flex flex-col md:flex-row justify-between gap-8 backdrop-blur-sm">
-                    <div className="space-y-4 flex-1">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-1 w-1 rounded-full ${task.status === 'Mandatory' ? 'bg-white' : 'bg-white/20'}`} />
-                        <span className="text-[9px] uppercase tracking-[0.4em] text-white/40">{task.status}</span>
-                      </div>
-                      <h3 className="text-2xl font-medium group-hover:text-white transition-colors">{task.title}</h3>
-                      <p className="text-sm text-white/40 leading-relaxed max-w-md">{task.description}</p>
+                  <div className="relative p-12 md:p-16 rounded-[3rem] bg-white/[0.02] border border-white/5 hover:border-white/20 transition-all group overflow-hidden">
+                    {/* Giant Background Number */}
+                    <div className="absolute -right-8 -top-8 font-geminiDisplay text-[15rem] font-bold text-white/[0.02] group-hover:text-white/[0.05] transition-colors duration-500 pointer-events-none select-none leading-none">
+                      0{idx + 1}
                     </div>
-                    <div className="flex items-center justify-end">
-                      <div className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-white group-hover:text-black transition-all">
-                        <ArrowUpRight className="h-5 w-5" />
+                    
+                    <div className="relative z-10 flex flex-col md:flex-row justify-between gap-12">
+                      <div className="space-y-6 flex-1">
+                        <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-white/10 bg-black/50 backdrop-blur-md">
+                          <div className={`h-1.5 w-1.5 rounded-full ${task.status === 'Mandatory' ? 'bg-white shadow-[0_0_10px_white]' : 'bg-white/20'}`} />
+                          <span className="text-[9px] uppercase tracking-[0.4em] text-white/70">{task.status}</span>
+                        </div>
+                        <h3 className="text-3xl md:text-4xl font-medium tracking-tight group-hover:text-white transition-colors">{task.title}</h3>
+                        <p className="text-base text-white/50 leading-relaxed font-light max-w-lg">{task.description}</p>
                       </div>
                     </div>
                   </div>
