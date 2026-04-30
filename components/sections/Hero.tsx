@@ -20,8 +20,9 @@ export const Hero: React.FC = () => {
   const featuredVideo = {
     title: "Featured AI Demo",
     description: "A fast-loading hero walkthrough of Gemini demos, product labs, and community sessions.",
-    embedUrl: "",
-    fileUrl: "",
+    embedUrl: null as string | null,
+    fileUrl: null as string | null,
+    fileType: "video/mp4",
     poster: "/assets/hero1.webp",
     cta: { label: "Add Hero Video", href: "/contact" },
   };
@@ -251,7 +252,7 @@ export const Hero: React.FC = () => {
                                     preload="metadata"
                                     poster={featuredVideo.poster}
                                 >
-                                    <source src={featuredVideo.fileUrl} />
+                                    <source src={featuredVideo.fileUrl} type={featuredVideo.fileType} />
                                     Your browser does not support the video tag.
                                 </video>
                             )
