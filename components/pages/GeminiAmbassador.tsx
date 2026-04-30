@@ -23,7 +23,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { geminiContent } from '../../lib/geminiContent';
-import { useScroll, useTransform, useSpring, motion, useInView } from 'framer-motion';
+import { useScroll, useTransform, useSpring, motion, useInView, useMotionValue } from 'framer-motion';
 
 const SceneContent: React.FC<{ scrollYProgress: any }> = ({ scrollYProgress }) => {
   const groupRef = React.useRef<THREE.Group>(null!);
@@ -183,16 +183,19 @@ export const GeminiAmbassador: React.FC = () => {
     restDelta: 0.001
   });
 
-  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const mouseX = useMotionValue(-1000);
+  const mouseY = useMotionValue(-1000);
   const [isHovering, setIsHovering] = useState(false);
+  const [spotlightSize, setSpotlightSize] = useState(24);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [mouseX, mouseY]);
 
   const videoShowcases = geminiContent.video.showcases ?? [];
   
@@ -208,44 +211,43 @@ export const GeminiAmbassador: React.FC = () => {
   return (
     <main 
       ref={containerRef} 
-      className="relative min-h-[300vh] bg-[#050505] text-white font-geminiBody selection:bg-white selection:text-black overflow-x-hidden"
+      className="relative min-h-[300vh] bg-[#050505] text-white font-geminiBody selection:bg-white selection:text-black overflow-x-hidden cursor-none"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
       {/* 3D Background Scene */}
       <Interactive3DScene scrollYProgress={smoothProgress} />
 
-      {/* HD Reveal Spotlight - Optimized */}
+      {/* Custom Orb Cursor - Perfectly Centered */}
       <motion.div
-        className="pointer-events-none fixed z-40 hidden md:block rounded-full border border-white/10 shadow-[0_0_50px_rgba(255,255,255,0.1)]"
-        style={{
-          width: 400,
-          height: 400,
-          left: -200,
-          top: -200,
-          backdropFilter: 'contrast(1.25) brightness(1.2) saturate(1.1) blur(0px)',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)',
-          willChange: "transform"
-        }}
-        animate={{
-          x: mousePos.x,
-          y: mousePos.y,
-          opacity: isHovering ? 1 : 0,
-          scale: isHovering ? 1 : 0
-        }}
-        transition={{ type: "spring", stiffness: 150, damping: 25, mass: 0.5 }}
-      />
-
-      {/* Mouse Spotlight Glow */}
-      <motion.div
-        className="pointer-events-none fixed inset-0 z-20 hidden md:block"
-        animate={{
-          background: isHovering 
-            ? `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.12) 0%, transparent 100%)`
-            : 'radial-gradient(0px circle at 0px 0px, transparent 0%, transparent 100%)'
-        }}
-        transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-      />
+        className="pointer-events-none fixed top-0 left-0 z-[9999] hidden md:block"
+        style={{ x: mouseX, y: mouseY }}
+      >
+        <motion.div
+          className="rounded-full border border-white/40 mix-blend-difference"
+          style={{
+            translateX: "-50%",
+            translateY: "-50%",
+            backdropFilter: spotlightSize > 30 ? 'contrast(1.5) brightness(1.2) saturate(1.2) blur(0px)' : 'none',
+            background: spotlightSize > 30 
+              ? 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 80%)' 
+              : 'white',
+            willChange: "width, height"
+          }}
+          animate={{
+            width: spotlightSize,
+            height: spotlightSize,
+            opacity: isHovering ? 1 : 0,
+            scale: isHovering ? 1 : 0.5
+          }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 400, 
+            damping: 30, 
+            mass: 0.2,
+          }}
+        />
+      </motion.div>
 
       {/* Cinematic Background Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
@@ -312,6 +314,8 @@ export const GeminiAmbassador: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            onMouseEnter={() => setSpotlightSize(300)}
+            onMouseLeave={() => setSpotlightSize(24)}
             className="font-geminiDisplay text-6xl md:text-8xl lg:text-[10rem] font-medium leading-[0.9] tracking-tighter"
           >
             SOURABH <br /> <span className="text-white/20 uppercase">SINGH</span>
@@ -374,8 +378,11 @@ export const GeminiAmbassador: React.FC = () => {
         </motion.div>
       </section>
 
-      {/* Impact Numbers */}
-      <section className="relative z-10 py-32 px-6">
+          <section 
+            className="relative z-10 py-32 px-6"
+            onMouseEnter={() => setSpotlightSize(250)}
+            onMouseLeave={() => setSpotlightSize(24)}
+          >
         <SectionWrapper>
           <div className="mx-auto max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-24 text-center">
@@ -397,7 +404,11 @@ export const GeminiAmbassador: React.FC = () => {
       <section className="relative z-10 py-32 px-6 overflow-hidden">
         <div className="mx-auto max-w-7xl">
           <SectionWrapper>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
+            <div 
+              className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20"
+              onMouseEnter={() => setSpotlightSize(250)}
+              onMouseLeave={() => setSpotlightSize(24)}
+            >
               <div className="space-y-6 text-center md:text-left">
                 <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">Interactive Showcase</span>
                 <h2 className="font-geminiDisplay text-5xl md:text-8xl font-medium tracking-tighter leading-none">
@@ -414,30 +425,35 @@ export const GeminiAmbassador: React.FC = () => {
             {videoShowcases.map((video, idx) => (
               <SectionWrapper key={video.title}>
                 <motion.div 
-                  whileHover={{ rotateY: 5, rotateX: -5, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="group relative aspect-video rounded-3xl overflow-hidden bg-white/5 border border-white/10 transition-all hover:border-white/30"
+                  whileHover={{ y: -10, scale: 1.01 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  className="group relative aspect-video rounded-[2.5rem] overflow-hidden bg-[#0a0a0a] border border-white/10 shadow-2xl"
+                  style={{ backfaceVisibility: "hidden", transform: "translateZ(0)" }}
                 >
-                  <img
+                  <motion.img
                     src={video.thumbnail}
                     alt={video.title}
-                    className="h-full w-full object-cover opacity-50 grayscale transition-all duration-1000 group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0"
+                    initial={{ opacity: 0.4, scale: 1 }}
+                    whileHover={{ opacity: 1, scale: 1.05 }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-[filter] duration-700"
                     loading="lazy"
                     decoding="async"
+                    style={{ willChange: "transform, opacity" }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500" />
                   
-                  <div className="absolute inset-0 p-12 flex flex-col justify-end">
+                  <div className="absolute inset-0 p-10 flex flex-col justify-end">
                     <div className="space-y-4">
                       <div className="flex items-center gap-4">
-                        <span className="px-4 py-1 rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-[9px] uppercase tracking-widest">{video.type}</span>
+                        <span className="px-4 py-1 rounded-full border border-white/20 bg-black/60 backdrop-blur-md text-[9px] uppercase tracking-widest">{video.type}</span>
                         <span className="text-[10px] text-white/40 font-mono tracking-widest">{video.duration}</span>
                       </div>
-                      <h3 className="text-3xl font-medium tracking-tight group-hover:translate-x-2 transition-transform duration-500">{video.title}</h3>
-                      <p className="text-sm text-white/40 line-clamp-2 max-w-sm group-hover:text-white/70 transition-colors">{video.description}</p>
+                      <h3 className="text-3xl font-medium tracking-tight group-hover:text-white transition-colors duration-500">{video.title}</h3>
+                      <p className="text-sm text-white/40 line-clamp-2 max-w-sm group-hover:text-white/70 transition-colors duration-500">{video.description}</p>
                       <div className="pt-6">
                         <button className="flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold text-white group/btn">
-                          <div className="h-8 w-8 rounded-full border border-white/20 flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-black transition-all">
+                          <div className="h-10 w-10 rounded-full border border-white/20 flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-black transition-all duration-300">
                             <Play className="h-3 w-3 fill-current" />
                           </div>
                           Play Showcase
