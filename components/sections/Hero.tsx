@@ -308,12 +308,12 @@ export const Hero: React.FC = () => {
                 className="grid gap-4 sm:grid-cols-2"
             >
                 {videoShowcases.map((video) => {
-                    const CardLink = video.internal ? Link : 'a';
+                    const CardLinkComponent = video.internal ? Link : 'a';
                     const cardProps = video.internal
                         ? { to: video.href }
                         : { href: video.href, target: '_blank', rel: 'noopener noreferrer' };
                     return (
-                        <CardLink
+                        <CardLinkComponent
                             key={video.title}
                             {...cardProps}
                             className="group rounded-2xl border border-white/10 bg-black/40 p-4 transition hover:border-google-blue/40 hover:bg-black/60"
@@ -336,7 +336,7 @@ export const Hero: React.FC = () => {
                             </div>
                             <h4 className="mt-2 text-sm font-semibold text-white">{video.title}</h4>
                             <p className="mt-2 text-xs text-gray-400">{video.description}</p>
-                        </CardLink>
+                        </CardLinkComponent>
                     );
                 })}
             </motion.div>

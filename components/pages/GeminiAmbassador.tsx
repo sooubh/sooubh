@@ -20,6 +20,8 @@ const fadeUp = {
   transition: { duration: 0.6 },
 };
 
+const isExternalLink = (href: string) => /^(https?:|mailto:)/.test(href);
+
 export const GeminiAmbassador: React.FC = () => {
   useEffect(() => {
     const previousTitle = document.title;
@@ -174,6 +176,7 @@ export const GeminiAmbassador: React.FC = () => {
             {geminiContent.proof.items.map((item, index) => {
               const icons = [BadgeCheck, Users, Megaphone, Sparkles];
               const Icon = icons[index % icons.length];
+              const isExternal = item.link ? isExternalLink(item.link.href) : false;
               return (
                 <motion.div
                   key={item.title}
@@ -188,9 +191,6 @@ export const GeminiAmbassador: React.FC = () => {
                   <h3 className="mt-4 text-xl font-semibold text-gemini-ink">{item.title}</h3>
                   <p className="mt-2 text-sm text-gemini-dusk">{item.description}</p>
                 {item.link ? (
-                  (() => {
-                    const isExternal = /^(https?:|mailto:)/.test(item.link.href);
-                    return (
                     <a
                       href={item.link.href}
                       target={isExternal ? '_blank' : undefined}
@@ -200,8 +200,6 @@ export const GeminiAmbassador: React.FC = () => {
                       {item.link.label}
                       <ArrowUpRight className="h-3 w-3" />
                     </a>
-                    );
-                  })()
                 ) : null}
                 </motion.div>
               );
@@ -359,6 +357,7 @@ export const GeminiAmbassador: React.FC = () => {
                 Scheduled: 'bg-gemini-cobalt/10 text-gemini-cobalt',
                 Planned: 'bg-gemini-sun/20 text-gemini-dusk',
               };
+              const isExternal = item.link ? isExternalLink(item.link.href) : false;
               return (
                 <motion.div
                   key={item.title}
@@ -376,9 +375,6 @@ export const GeminiAmbassador: React.FC = () => {
                   <p className="mt-2 text-sm text-gemini-dusk">{item.description}</p>
                   <p className="mt-4 text-xs uppercase tracking-[0.2em] text-gemini-ink/50">{item.source}</p>
                   {item.link ? (
-                    (() => {
-                      const isExternal = /^(https?:|mailto:)/.test(item.link.href);
-                      return (
                     <a
                       href={item.link.href}
                       target={isExternal ? '_blank' : undefined}
@@ -388,8 +384,6 @@ export const GeminiAmbassador: React.FC = () => {
                       {item.link.label}
                       <ArrowUpRight className="h-3 w-3" />
                     </a>
-                      );
-                    })()
                   ) : null}
                 </motion.div>
               );
