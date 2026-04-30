@@ -1,41 +1,56 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Sphere, MeshDistortMaterial, PerspectiveCamera, Text } from '@react-three/drei';
+import { Float, Sphere, MeshDistortMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   ArrowUpRight,
   BadgeCheck,
-  Calendar,
-  Cpu,
-  GraduationCap,
-  Layers,
-  Megaphone,
-  PlayCircle,
   Sparkles,
-  Users,
-  Video,
-  Zap,
   ArrowRight,
   Play,
-  Share2,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  Code2,
+  Smartphone,
+  Database,
+  Globe
 } from 'lucide-react';
 import { geminiContent } from '../../lib/geminiContent';
-import { useScroll, useTransform, useSpring, motion, useInView, useMotionValue } from 'framer-motion';
+import { 
+  useScroll, 
+  useTransform, 
+  useSpring, 
+  motion, 
+  useMotionValue, 
+  useMotionTemplate,
+  MotionValue
+} from 'framer-motion';
 
-const SceneContent: React.FC<{ scrollYProgress: any }> = ({ scrollYProgress }) => {
+// --- Types ---
+interface SceneProps {
+  scrollYProgress: MotionValue<number>;
+}
+
+interface StarProps {
+  count: number;
+  radius: number;
+  depth?: number;
+  factor?: number;
+  saturation?: number;
+  fade?: boolean;
+  speed?: number;
+}
+
+// --- 3D Components ---
+const SceneContent: React.FC<SceneProps> = ({ scrollYProgress }) => {
   const groupRef = React.useRef<THREE.Group>(null!);
 
   useFrame(() => {
     if (groupRef.current) {
       const progress = scrollYProgress.get();
-      // Rotation effect
       groupRef.current.rotation.y = progress * Math.PI * 2;
-      // Position effect (moving down)
       groupRef.current.position.y = -progress * 5;
-      // Scale effect (pulse/swell)
       const s = 1 + Math.sin(progress * Math.PI) * 0.5;
       groupRef.current.scale.set(s, s, s);
     }
@@ -43,7 +58,6 @@ const SceneContent: React.FC<{ scrollYProgress: any }> = ({ scrollYProgress }) =
 
   return (
     <group ref={groupRef}>
-      {/* Floating Geometric Orbs */}
       <Float speed={2} rotationIntensity={1} floatIntensity={1}>
         <Sphere args={[1, 64, 64]} position={[0, 0, 0]}>
           <MeshDistortMaterial
@@ -53,11 +67,11 @@ const SceneContent: React.FC<{ scrollYProgress: any }> = ({ scrollYProgress }) =
             radius={1}
             metalness={0.9}
             roughness={0.1}
+            emissive="#1a1a1a"
           />
         </Sphere>
       </Float>
 
-      {/* Orbiting particles or small cubes */}
       {[...Array(20)].map((_, i) => (
         <Float key={i} speed={1.5} rotationIntensity={2} floatIntensity={2}>
           <mesh position={[
@@ -66,7 +80,7 @@ const SceneContent: React.FC<{ scrollYProgress: any }> = ({ scrollYProgress }) =
             Math.sin(i * 0.5) * 2
           ]}>
             <boxGeometry args={[0.1, 0.1, 0.1]} />
-            <meshStandardMaterial color="#ffffff" metalness={0.8} roughness={0.2} />
+            <meshStandardMaterial color="#ffffff" metalness={0.8} roughness={0.2} emissive="#333333" />
           </mesh>
         </Float>
       ))}
@@ -74,24 +88,7 @@ const SceneContent: React.FC<{ scrollYProgress: any }> = ({ scrollYProgress }) =
   );
 };
 
-const Interactive3DScene: React.FC<{ scrollYProgress: any }> = ({ scrollYProgress }) => {
-  return (
-    <Canvas
-      shadows
-      className="fixed inset-0 z-0 pointer-events-none"
-      camera={{ position: [0, 0, 5], fov: 45 }}
-    >
-      <ambientLight intensity={0.2} />
-      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} />
-
-      <SceneContent scrollYProgress={scrollYProgress} />
-      <Stars count={1000} radius={100} depth={50} factor={4} saturation={0} fade speed={1} />
-    </Canvas>
-  );
-};
-
-const Stars = ({ count, radius, depth, factor, saturation, fade, speed }: any) => {
+const Stars: React.FC<StarProps> = ({ count, radius, speed = 1 }) => {
   const mesh = React.useRef<THREE.Points>(null!);
   const [positions] = React.useState(() => {
     const pos = new Float32Array(count * 3);
@@ -103,7 +100,7 @@ const Stars = ({ count, radius, depth, factor, saturation, fade, speed }: any) =
     return pos;
   });
 
-  useFrame((state) => {
+  useFrame(() => {
     if (mesh.current) {
       mesh.current.rotation.y += 0.0005 * speed;
       mesh.current.rotation.x += 0.0002 * speed;
@@ -125,7 +122,26 @@ const Stars = ({ count, radius, depth, factor, saturation, fade, speed }: any) =
   );
 };
 
-const SectionWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const Interactive3DScene: React.FC<SceneProps> = ({ scrollYProgress }) => {
+  return (
+    <Canvas
+      shadows
+      dpr={[1, 2]} // Added for crisper rendering on high DPI screens
+      className="fixed inset-0 z-0 pointer-events-none"
+      camera={{ position: [0, 0, 5], fov: 45 }}
+    >
+      <ambientLight intensity={0.2} />
+      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} />
+
+      <SceneContent scrollYProgress={scrollYProgress} />
+      <Stars count={1000} radius={100} depth={50} factor={4} saturation={0} fade speed={1} />
+    </Canvas>
+  );
+};
+
+// --- Utilities & Wrappers ---
+const SectionWrapper: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
   const ref = React.useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -146,30 +162,43 @@ const SectionWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =
         perspective: "1200px",
         willChange: "transform, opacity"
       }}
+      transition={{ delay }}
     >
       {children}
     </motion.div>
   );
 };
 
-const fadeUp = {
-  initial: { opacity: 0, y: 50, rotateX: 20 },
-  whileInView: { opacity: 1, y: 0, rotateX: 0 },
-  viewport: { once: true, margin: "-100px" },
-  transition: { duration: 1, ease: [0.16, 1, 0.3, 1] },
-};
-
-const staggerContainer = {
-  initial: {},
-  whileInView: {
-    transition: {
-      staggerChildren: 0.1,
-    },
+// --- Local Content Additions ---
+const projectsData = [
+  {
+    title: "Lovyn",
+    role: "Full-Stack Developer",
+    description: "A modern dating platform architected with Flutter for a fluid mobile experience and Firebase for real-time data synchronization and backend scalability.",
+    tags: ["Flutter", "Dart", "Firebase", "Mobile"]
   },
-};
+  {
+    title: "LedgerShield",
+    role: "Team Gen(AI)tics",
+    description: "Developed for the Microsoft Imagine Cup 2026. A security-focused AI implementation demonstrating advanced protective measures.",
+    tags: ["GenAI", "Microsoft", "Security", "Hackathon"]
+  },
+  {
+    title: "StockHealth AI",
+    role: "AI Engineer",
+    description: "An intelligent prototype leveraging the Snowflake Data Cloud and Cortex AI to process, analyze, and demystify complex data health metrics.",
+    tags: ["Snowflake", "Cortex AI", "Data Cloud"]
+  }
+];
 
-const isExternalLink = (href: string) => /^(https?:|mailto:)/.test(href);
+const techStack = [
+  { icon: <Smartphone className="w-6 h-6" />, name: "Mobile", tools: "Flutter, Dart" },
+  { icon: <Globe className="w-6 h-6" />, name: "Web", tools: "React, Next.js, Tailwind CSS" },
+  { icon: <Database className="w-6 h-6" />, name: "Backend", tools: "Firebase, Node.js" },
+  { icon: <Code2 className="w-6 h-6" />, name: "AI/Data", tools: "Gemini API, Snowflake, DSA" }
+];
 
+// --- Main Page Component ---
 export const GeminiAmbassador: React.FC = () => {
   const containerRef = React.useRef(null);
   const { scrollYProgress } = useScroll({
@@ -185,19 +214,51 @@ export const GeminiAmbassador: React.FC = () => {
 
   const mouseX = useMotionValue(-1000);
   const mouseY = useMotionValue(-1000);
-  const [isHovering, setIsHovering] = useState(false);
-  const [spotlightSize, setSpotlightSize] = useState(24);
+  const [isHovering, setIsHovering] = useState(true);
+  const [hasMoved, setHasMoved] = useState(false);
+  const [spotlightSize, setSpotlightSize] = useState(12);
+
+  const heroRef = useRef<HTMLDivElement>(null);
+  const heroX = useMotionValue(0);
+  const heroY = useMotionValue(0);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      if (!hasMoved) setHasMoved(true);
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY]);
 
-  const videoShowcases = geminiContent.video.showcases ?? [];
+    const updateHeroPos = () => {
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect();
+        heroX.set(rect.left);
+        heroY.set(rect.top);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', updateHeroPos);
+    window.addEventListener('resize', updateHeroPos);
+    updateHeroPos();
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', updateHeroPos);
+      window.removeEventListener('resize', updateHeroPos);
+    };
+  }, [mouseX, mouseY, hasMoved, heroX, heroY]);
+
+  const spotlightSizeMotion = useSpring(spotlightSize, { stiffness: 400, damping: 30 });
+  
+  useEffect(() => {
+    spotlightSizeMotion.set(spotlightSize);
+  }, [spotlightSize, spotlightSizeMotion]);
+
+  const revealMask = useMotionTemplate`radial-gradient(circle at ${useTransform([mouseX, heroX], ([x, hx]) => (x as number) - (hx as number))}px ${useTransform([mouseY, heroY], ([y, hy]) => (y as number) - (hy as number))}px, black ${spotlightSizeMotion}px, transparent ${spotlightSizeMotion}px)`;
+  const inverseRevealMask = useMotionTemplate`radial-gradient(circle at ${useTransform([mouseX, heroX], ([x, hx]) => (x as number) - (hx as number))}px ${useTransform([mouseY, heroY], ([y, hy]) => (y as number) - (hy as number))}px, transparent ${spotlightSizeMotion}px, black ${spotlightSizeMotion}px)`;
+
+  const videoShowcases = geminiContent.video?.showcases ?? [];
   
   useEffect(() => {
     const previousTitle = document.title;
@@ -215,41 +276,32 @@ export const GeminiAmbassador: React.FC = () => {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {/* 3D Background Scene */}
       <Interactive3DScene scrollYProgress={smoothProgress} />
 
-      {/* Custom Orb Cursor - Perfectly Centered */}
+      {/* Custom Orb Cursor */}
       <motion.div
         className="pointer-events-none fixed top-0 left-0 z-[9999] hidden md:block"
         style={{ x: mouseX, y: mouseY }}
       >
         <motion.div
-          className="rounded-full border border-white/40 mix-blend-difference"
+          className="rounded-full border border-white/30 mix-blend-difference"
           style={{
             translateX: "-50%",
             translateY: "-50%",
-            backdropFilter: spotlightSize > 30 ? 'contrast(1.5) brightness(1.2) saturate(1.2) blur(0px)' : 'none',
-            background: spotlightSize > 30 
-              ? 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 80%)' 
-              : 'white',
+            width: spotlightSizeMotion,
+            height: spotlightSizeMotion,
+            backdropFilter: spotlightSize > 20 ? 'contrast(1.2) brightness(1.2) blur(2px)' : 'none',
+            background: spotlightSize > 20 ? 'rgba(255,255,255,0.03)' : 'white',
             willChange: "width, height"
           }}
           animate={{
-            width: spotlightSize,
-            height: spotlightSize,
-            opacity: isHovering ? 1 : 0,
-            scale: isHovering ? 1 : 0.5
+            opacity: hasMoved ? (isHovering ? 1 : 0) : 0,
+            scale: hasMoved ? (isHovering ? 1 : 0.8) : 0.8
           }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 400, 
-            damping: 30, 
-            mass: 0.2,
-          }}
+          transition={{ type: "spring", stiffness: 400, damping: 30, mass: 0.2 }}
         />
       </motion.div>
 
-      {/* Cinematic Background Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
 
       {/* Navigation */}
@@ -295,7 +347,7 @@ export const GeminiAmbassador: React.FC = () => {
             playsInline
             className="h-full w-full object-cover scale-105 blur-[2px] opacity-40"
           >
-            <source src={geminiContent.video.fileUrl || "https://assets.mixkit.co/videos/preview/mixkit-circuit-board-animation-1559-large.mp4"} type="video/mp4" />
+            <source src={geminiContent.video?.fileUrl || "https://assets.mixkit.co/videos/preview/mixkit-circuit-board-animation-1559-large.mp4"} type="video/mp4" />
           </video>
         </div>
 
@@ -310,30 +362,26 @@ export const GeminiAmbassador: React.FC = () => {
             <span className="text-[10px] uppercase tracking-[0.4em] text-white/70">Google Gemini Campus Partner</span>
           </motion.div>
 
-          <motion.h1 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            onMouseEnter={() => setSpotlightSize(300)}
-            onMouseLeave={() => setSpotlightSize(24)}
-            className="font-geminiDisplay text-6xl md:text-8xl lg:text-[10rem] font-medium leading-[0.9] tracking-tighter"
-          >
-            SOURABH <br /> <span className="text-white/20 uppercase">SINGH</span>
-            
-            {/* Hidden Reveal Text - only clear in spotlight */}
-            <div className="absolute inset-0 pointer-events-none select-none opacity-0 md:group-hover:opacity-100 transition-opacity duration-500">
-               <span className="text-white/5 blur-sm uppercase">AI VISIONARY</span>
-            </div>
-          </motion.h1>
+          <div ref={heroRef} className="relative group flex flex-col items-center justify-center">
+            <motion.h1 
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ WebkitMaskImage: inverseRevealMask, maskImage: inverseRevealMask }}
+              transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              onMouseEnter={() => setSpotlightSize(350)}
+              onMouseLeave={() => setSpotlightSize(24)}
+              className="font-geminiDisplay text-6xl md:text-8xl lg:text-[10rem] font-medium leading-[0.85] tracking-tighter text-center"
+            >
+              SOURABH <br /> <span className="text-white/20 uppercase">SINGH</span>
+            </motion.h1>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="flex flex-col items-center gap-2"
-          >
-            <span className="text-xs uppercase tracking-[0.5em] text-white/40">Gemini Campus Ambassador</span>
-          </motion.div>
+            <motion.h1 
+              style={{ WebkitMaskImage: revealMask, maskImage: revealMask }}
+              className="absolute inset-0 flex flex-col items-center justify-center font-geminiDisplay text-6xl md:text-8xl lg:text-[10rem] font-medium leading-[0.85] tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-zinc-400 to-zinc-600 z-10 pointer-events-none text-center"
+            >
+              GEMINI <br /> AMBASSADOR
+            </motion.h1>
+          </div>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -341,7 +389,7 @@ export const GeminiAmbassador: React.FC = () => {
             transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="mx-auto max-w-xl text-lg md:text-xl text-white/50 font-light leading-relaxed"
           >
-            {geminiContent.hero.subtitle}
+            {geminiContent.hero?.subtitle}
           </motion.p>
 
           <motion.div
@@ -351,17 +399,17 @@ export const GeminiAmbassador: React.FC = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
             <Link
-              to={geminiContent.hero.cta.primary.href}
+              to={geminiContent.hero?.cta?.primary?.href || "#"}
               className="group flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-medium transition-all hover:scale-105"
             >
-              {geminiContent.hero.cta.primary.label}
+              {geminiContent.hero?.cta?.primary?.label || "Explore"}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              to={geminiContent.hero.cta.secondary.href}
+              to={geminiContent.hero?.cta?.secondary?.href || "#"}
               className="px-8 py-4 border border-white/20 hover:bg-white/5 rounded-full font-medium transition-all"
             >
-              {geminiContent.hero.cta.secondary.label}
+              {geminiContent.hero?.cta?.secondary?.label || "Learn More"}
             </Link>
           </motion.div>
         </div>
@@ -378,15 +426,16 @@ export const GeminiAmbassador: React.FC = () => {
         </motion.div>
       </section>
 
-          <section 
-            className="relative z-10 py-32 px-6"
-            onMouseEnter={() => setSpotlightSize(250)}
-            onMouseLeave={() => setSpotlightSize(24)}
-          >
+      {/* Metrics Section */}
+      <section 
+        className="relative z-10 py-32 px-6"
+        onMouseEnter={() => setSpotlightSize(250)}
+        onMouseLeave={() => setSpotlightSize(24)}
+      >
         <SectionWrapper>
           <div className="mx-auto max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-24 text-center">
-              {geminiContent.metrics.items.map((stat, idx) => (
+              {geminiContent.metrics?.items?.map((stat, idx) => (
                 <div key={stat.label} className="space-y-4">
                   <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">{stat.label}</span>
                   <div className="text-6xl md:text-8xl font-geminiDisplay font-medium tracking-tighter text-white">
@@ -400,7 +449,85 @@ export const GeminiAmbassador: React.FC = () => {
         </SectionWrapper>
       </section>
 
-      {/* Video Showcase Section - 3D CARDS */}
+      {/* NEW: Groundbreaking Projects Section */}
+      <section className="relative z-10 py-32 px-6 overflow-hidden">
+        <div className="mx-auto max-w-7xl">
+          <SectionWrapper>
+            <div className="mb-20 space-y-6 text-center md:text-left">
+              <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">Innovations</span>
+              <h2 className="font-geminiDisplay text-5xl md:text-8xl font-medium tracking-tighter leading-none">
+                BUILT <br /> <span className="text-white/20">PROJECTS</span>
+              </h2>
+            </div>
+          </SectionWrapper>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {projectsData.map((project, idx) => (
+              <SectionWrapper key={project.title} delay={idx * 0.1}>
+                <motion.div 
+                  whileHover={{ y: -10 }}
+                  className="h-full p-8 rounded-[2rem] bg-white/[0.02] border border-white/10 hover:border-white/30 hover:bg-white/[0.05] transition-all flex flex-col justify-between group backdrop-blur-sm"
+                >
+                  <div>
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="h-10 w-10 rounded-full border border-white/20 flex items-center justify-center bg-white/5 group-hover:scale-110 transition-transform">
+                        <Code2 className="h-4 w-4 text-white" />
+                      </div>
+                      <span className="text-[9px] uppercase tracking-widest text-white/40">{project.role}</span>
+                    </div>
+                    <h3 className="text-2xl font-medium mb-4 group-hover:text-white transition-colors">{project.title}</h3>
+                    <p className="text-sm text-white/50 leading-relaxed mb-8">{project.description}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.map(tag => (
+                      <span key={tag} className="px-3 py-1 rounded-full border border-white/10 text-[9px] uppercase tracking-wider text-white/60 group-hover:border-white/30 group-hover:text-white/80 transition-colors">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              </SectionWrapper>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* NEW: Tech Stack Section */}
+      <section className="relative z-10 py-32 px-6">
+        <div className="mx-auto max-w-7xl">
+          <SectionWrapper>
+            <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-16">
+              <div className="space-y-6">
+                <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">Arsenal</span>
+                <h2 className="font-geminiDisplay text-5xl md:text-7xl font-medium tracking-tighter leading-[0.9]">
+                  TECHNICAL <br /> <span className="text-white/20">STACK</span>
+                </h2>
+              </div>
+              <p className="max-w-sm text-white/50 text-right font-light">
+                Full-stack expertise powering next-generation mobile and web applications.
+              </p>
+            </div>
+          </SectionWrapper>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {techStack.map((tech, idx) => (
+              <SectionWrapper key={tech.name} delay={idx * 0.05}>
+                <div className="p-8 rounded-[1.5rem] bg-gradient-to-br from-white/[0.05] to-transparent border border-white/5 hover:border-white/20 transition-all flex flex-col items-center text-center gap-4 group">
+                  <div className="text-white/40 group-hover:text-white transition-colors group-hover:scale-110 duration-300">
+                    {tech.icon}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium mb-1">{tech.name}</h4>
+                    <p className="text-[10px] uppercase tracking-widest text-white/30">{tech.tools}</p>
+                  </div>
+                </div>
+              </SectionWrapper>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Video Showcase Section */}
       <section className="relative z-10 py-32 px-6 overflow-hidden">
         <div className="mx-auto max-w-7xl">
           <SectionWrapper>
@@ -423,7 +550,7 @@ export const GeminiAmbassador: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {videoShowcases.map((video, idx) => (
-              <SectionWrapper key={video.title}>
+              <SectionWrapper key={video.title} delay={idx * 0.1}>
                 <motion.div 
                   whileHover={{ y: -10, scale: 1.01 }}
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -493,9 +620,9 @@ export const GeminiAmbassador: React.FC = () => {
             </div>
 
             <div className="lg:col-span-7 space-y-6">
-              {geminiContent.tasks.items.map((task, idx) => (
-                <SectionWrapper key={task.title}>
-                  <div className="p-12 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-white/20 transition-all group flex flex-col md:flex-row justify-between gap-8">
+              {geminiContent.tasks?.items?.map((task, idx) => (
+                <SectionWrapper key={task.title} delay={idx * 0.1}>
+                  <div className="p-12 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-white/20 transition-all group flex flex-col md:flex-row justify-between gap-8 backdrop-blur-sm">
                     <div className="space-y-4 flex-1">
                       <div className="flex items-center gap-3">
                         <div className={`h-1 w-1 rounded-full ${task.status === 'Mandatory' ? 'bg-white' : 'bg-white/20'}`} />
@@ -538,8 +665,8 @@ export const GeminiAmbassador: React.FC = () => {
           </SectionWrapper>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {geminiContent.proof.items.map((item, idx) => (
-              <SectionWrapper key={item.title}>
+            {geminiContent.proof?.items?.map((item, idx) => (
+              <SectionWrapper key={item.title} delay={idx * 0.1}>
                 <div className="h-full p-10 rounded-[2.5rem] border border-black/10 bg-black/[0.01] hover:bg-black/5 transition-all flex flex-col justify-between group">
                   <div>
                     <div className="h-12 w-12 rounded-2xl bg-black flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
@@ -573,13 +700,13 @@ export const GeminiAmbassador: React.FC = () => {
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
               <Link
-                to={geminiContent.cta.primary.href}
+                to={geminiContent.cta?.primary?.href || "#"}
                 className="w-full sm:w-auto px-16 py-8 bg-white text-black rounded-full font-bold text-sm uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-[0_20px_50px_rgba(255,255,255,0.2)]"
               >
-                {geminiContent.cta.primary.label}
+                {geminiContent.cta?.primary?.label || "Collaborate"}
               </Link>
               <a
-                href={geminiContent.cta.secondary.href}
+                href={geminiContent.cta?.secondary?.href || "#"}
                 className="w-full sm:w-auto px-16 py-8 border border-white/20 rounded-full font-bold text-sm uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all"
               >
                 Direct Inquiry
