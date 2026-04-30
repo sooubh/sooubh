@@ -1,8 +1,8 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, Sphere, MeshDistortMaterial, PerspectiveCamera, Text } from '@react-three/drei';
+import * as THREE from 'three';
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -16,660 +16,521 @@ import {
   Users,
   Video,
   Zap,
+  ArrowRight,
+  Play,
+  Share2,
+  ExternalLink,
+  ChevronDown
 } from 'lucide-react';
-import { Starfield } from '../three/Starfield';
-import { Planet } from '../three/Planet';
 import { geminiContent } from '../../lib/geminiContent';
+import { useScroll, useTransform, useSpring, motion, useInView } from 'framer-motion';
+
+const SceneContent: React.FC<{ scrollYProgress: any }> = ({ scrollYProgress }) => {
+  const groupRef = React.useRef<THREE.Group>(null!);
+
+  useFrame(() => {
+    if (groupRef.current) {
+      const progress = scrollYProgress.get();
+      // Rotation effect
+      groupRef.current.rotation.y = progress * Math.PI * 2;
+      // Position effect (moving down)
+      groupRef.current.position.y = -progress * 5;
+      // Scale effect (pulse/swell)
+      const s = 1 + Math.sin(progress * Math.PI) * 0.5;
+      groupRef.current.scale.set(s, s, s);
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      {/* Floating Geometric Orbs */}
+      <Float speed={2} rotationIntensity={1} floatIntensity={1}>
+        <Sphere args={[1, 64, 64]} position={[0, 0, 0]}>
+          <MeshDistortMaterial
+            color="#ffffff"
+            speed={3}
+            distort={0.4}
+            radius={1}
+            metalness={0.9}
+            roughness={0.1}
+          />
+        </Sphere>
+      </Float>
+
+      {/* Orbiting particles or small cubes */}
+      {[...Array(20)].map((_, i) => (
+        <Float key={i} speed={1.5} rotationIntensity={2} floatIntensity={2}>
+          <mesh position={[
+            Math.sin(i) * 4,
+            Math.cos(i) * 4,
+            Math.sin(i * 0.5) * 2
+          ]}>
+            <boxGeometry args={[0.1, 0.1, 0.1]} />
+            <meshStandardMaterial color="#ffffff" metalness={0.8} roughness={0.2} />
+          </mesh>
+        </Float>
+      ))}
+    </group>
+  );
+};
+
+const Interactive3DScene: React.FC<{ scrollYProgress: any }> = ({ scrollYProgress }) => {
+  return (
+    <Canvas
+      shadows
+      className="fixed inset-0 z-0 pointer-events-none"
+      camera={{ position: [0, 0, 5], fov: 45 }}
+    >
+      <ambientLight intensity={0.2} />
+      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} />
+
+      <SceneContent scrollYProgress={scrollYProgress} />
+      <Stars count={1000} radius={100} depth={50} factor={4} saturation={0} fade speed={1} />
+    </Canvas>
+  );
+};
+
+const Stars = ({ count, radius, depth, factor, saturation, fade, speed }: any) => {
+  const mesh = React.useRef<THREE.Points>(null!);
+  const [positions] = React.useState(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * radius * 2;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * radius * 2;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * radius * 2;
+    }
+    return pos;
+  });
+
+  useFrame((state) => {
+    if (mesh.current) {
+      mesh.current.rotation.y += 0.0005 * speed;
+      mesh.current.rotation.x += 0.0002 * speed;
+    }
+  });
+
+  return (
+    <points ref={mesh}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={positions.length / 3}
+          array={positions}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial size={0.05} color="#ffffff" transparent opacity={0.5} sizeAttenuation />
+    </points>
+  );
+};
+
+const SectionWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const ref = React.useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+
+  const rotateX = useTransform(scrollYProgress, [0, 0.5, 1], [15, 0, -15]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1, 0.9]);
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{
+        rotateX,
+        opacity,
+        scale,
+        perspective: "1000px"
+      }}
+      className="transition-all duration-300 ease-out"
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true },
-  transition: { duration: 0.6 },
+  initial: { opacity: 0, y: 50, rotateX: 20 },
+  whileInView: { opacity: 1, y: 0, rotateX: 0 },
+  viewport: { once: true, margin: "-100px" },
+  transition: { duration: 1, ease: [0.16, 1, 0.3, 1] },
+};
+
+const staggerContainer = {
+  initial: {},
+  whileInView: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
 };
 
 const isExternalLink = (href: string) => /^(https?:|mailto:)/.test(href);
 
-const GeminiHeroScene: React.FC = () => (
-  <Canvas camera={{ position: [0, 0, 7], fov: 45 }} gl={{ antialias: true }} dpr={[1, 2]}>
-    <Suspense fallback={null}>
-      <ambientLight intensity={0.45} />
-      <pointLight position={[6, 6, 6]} intensity={1.1} color="#4285F4" />
-      <pointLight position={[-6, -3, 4]} intensity={0.8} color="#34A853" />
-      <Starfield />
-      <Planet position={[-2.2, 0.2, 0]} color="#4285F4" label="Labs" onClick={() => undefined} scale={0.85} />
-      <Planet position={[2.1, -0.6, 0.4]} color="#FBBC05" label="Demos" onClick={() => undefined} scale={0.7} />
-      <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.6} />
-    </Suspense>
-  </Canvas>
-);
-
 export const GeminiAmbassador: React.FC = () => {
-  const hasHeroVideo = Boolean(geminiContent.video.embedUrl || geminiContent.video.fileUrl);
-  const videoShowcases = geminiContent.video.showcases ?? [];
-  const heroHighlights = geminiContent.hero.highlights.slice(0, 2);
-  const heroStats = [
-    { label: 'Prompt Labs', value: 'Weekly', icon: Cpu },
-    { label: 'Builder Demos', value: 'Live', icon: Zap },
-    { label: 'Campus Reach', value: 'Community', icon: Layers },
-  ];
-  const latestUpdate = geminiContent.updates.items[0];
+  const containerRef = React.useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
 
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  const videoShowcases = geminiContent.video.showcases ?? [];
+  
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = 'Google Gemini Campus Ambassador | Sourabh Singh';
+    document.title = 'Google Gemini Ambassador | Sourabh Singh';
+    window.scrollTo(0, 0);
     return () => {
       document.title = previousTitle;
     };
   }, []);
 
   return (
-    <main className="relative min-h-screen bg-[#0b0f14] text-white font-geminiBody selection:bg-gemini-cobalt selection:text-white overflow-hidden">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-80"
-        style={{
-          background:
-            'radial-gradient(800px 500px at 10% 0%, rgba(66,133,244,0.18), transparent 60%), radial-gradient(700px 400px at 90% 10%, rgba(52,168,83,0.16), transparent 55%), radial-gradient(600px 400px at 50% 80%, rgba(251,188,5,0.12), transparent 55%)',
-        }}
-        aria-hidden="true"
-      />
-      <div className="pointer-events-none absolute inset-0 opacity-30 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:52px_52px]" aria-hidden="true" />
+    <main ref={containerRef} className="relative min-h-[300vh] bg-[#050505] text-white font-geminiBody selection:bg-white selection:text-black overflow-x-hidden">
+      {/* 3D Background Scene */}
+      <Interactive3DScene scrollYProgress={smoothProgress} />
 
-      <header className="relative z-10 flex flex-wrap items-center justify-between gap-4 px-6 py-6 md:px-12">
-        <Link to="/" className="flex items-center gap-4">
-          <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-            <img
-              src="/assets/geminiLogo/GoogleStudentAmbassadorLogo.png"
-              alt="Google logo"
-              className="h-5 w-auto object-contain"
-              loading="lazy"
-            />
-            <span className="h-5 w-px bg-white/20" />
-            <img
-              src="/assets/geminiLogo/Google Gemini Logo on White.png"
-              alt="Google Gemini logo"
-              className="h-6 w-auto object-contain"
-              loading="lazy"
-            />
-          </div>
-          <div className="hidden sm:block">
-            <p className="font-geminiDisplay text-sm uppercase tracking-[0.3em] text-white/70">
-              Gemini Campus Ambassador
-            </p>
-            <p className="text-xs text-white/50">Sourabh Singh</p>
-          </div>
-        </Link>
-        <div className="flex items-center gap-3 text-sm">
-          <Link
-            to="/services"
-            className="px-4 py-2 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/30 transition"
-          >
-            AI Services
+      {/* Cinematic Background Overlay */}
+      <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
+
+      {/* Navigation */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-6 md:px-12 mix-blend-difference">
+        <div className="mx-auto max-w-7xl flex items-center justify-between">
+          <Link to="/" className="group flex items-center gap-3">
+            <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/20 transition-transform group-hover:scale-110">
+              <img
+                src="/assets/geminiLogo/Google Logo.png"
+                alt="Google"
+                className="h-full w-full object-contain p-1 invert"
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-geminiDisplay text-xs uppercase tracking-[0.3em] text-white">Ambassador</span>
+              <span className="text-[10px] text-white/50 tracking-widest uppercase">Sourabh Singh</span>
+            </div>
           </Link>
-          <Link
-            to="/contact"
-            className="px-4 py-2 rounded-full bg-white text-[#0b0f14] hover:bg-white/90 transition flex items-center gap-2"
-          >
-            Contact
-            <ArrowUpRight className="w-4 h-4" />
-          </Link>
+          
+          <nav className="flex items-center gap-8">
+            <Link to="/services" className="hidden md:block text-xs uppercase tracking-widest text-white/60 hover:text-white transition-colors">Services</Link>
+            <Link 
+              to="/contact" 
+              className="px-6 py-2 rounded-full border border-white/20 bg-white/5 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-all duration-300"
+            >
+              Connect
+            </Link>
+          </nav>
         </div>
       </header>
 
-      <section className="relative z-10 px-6 pb-16 pt-6 md:px-12 md:pb-24">
-        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_1.1fr] items-center">
-          <motion.div {...fadeUp} className="space-y-6">
-            <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/70">
-              <Sparkles className="h-4 w-4 text-gemini-cobalt" />
-              Gemini Campus Ambassador
-              <span className="h-3 w-px bg-white/20" />
-              <span className="text-white/50">GOOGLE • GEMINI</span>
-            </div>
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center pt-24 px-6 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/20 via-[#050505]/60 to-[#050505] z-10" />
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="h-full w-full object-cover scale-105 blur-[2px] opacity-40"
+          >
+            <source src={geminiContent.video.fileUrl || "https://assets.mixkit.co/videos/preview/mixkit-circuit-board-animation-1559-large.mp4"} type="video/mp4" />
+          </video>
+        </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
-              <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-white/50">
-                <span>Power Box</span>
-                <span className="text-gemini-cobalt">System Online</span>
-              </div>
-              <p className="mt-3 text-sm text-white/70">{geminiContent.hero.badge}</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                {heroStats.map((stat) => {
-                  const Icon = stat.icon;
-                  return (
-                    <div key={stat.label} className="rounded-2xl border border-white/10 bg-black/40 p-3">
-                      <Icon className="h-4 w-4 text-gemini-cobalt" />
-                      <p className="mt-2 text-xs uppercase tracking-[0.2em] text-white/50">{stat.label}</p>
-                      <p className="mt-1 text-sm font-semibold text-white">{stat.value}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+        <div className="relative z-20 max-w-5xl w-full text-center space-y-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-white" />
+            <span className="text-[10px] uppercase tracking-[0.4em] text-white/70">Google Gemini Campus Partner</span>
+          </motion.div>
 
-            <div className="space-y-3">
-              <h1 className="font-geminiDisplay text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight">
-                {geminiContent.hero.title}
-              </h1>
-              <p className="text-base md:text-lg text-white/70 max-w-xl">
-                {geminiContent.hero.subtitle}
-              </p>
-            </div>
+          <motion.h1 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="font-geminiDisplay text-6xl md:text-8xl lg:text-[10rem] font-medium leading-[0.9] tracking-tighter"
+          >
+            SOURABH <br /> <span className="text-white/20 uppercase">SINGH</span>
+          </motion.h1>
 
-            <div className="flex flex-wrap gap-2">
-              {heroHighlights.map((item) => (
-                <span key={item} className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/70">
-                  {item}
-                </span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="flex flex-col items-center gap-2"
+          >
+            <span className="text-xs uppercase tracking-[0.5em] text-white/40">Gemini Campus Ambassador</span>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="mx-auto max-w-xl text-lg md:text-xl text-white/50 font-light leading-relaxed"
+          >
+            {geminiContent.hero.subtitle}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+          >
+            <Link
+              to={geminiContent.hero.cta.primary.href}
+              className="group flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-medium transition-all hover:scale-105"
+            >
+              {geminiContent.hero.cta.primary.label}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+            <Link
+              to={geminiContent.hero.cta.secondary.href}
+              className="px-8 py-4 border border-white/20 hover:bg-white/5 rounded-full font-medium transition-all"
+            >
+              {geminiContent.hero.cta.secondary.label}
+            </Link>
+          </motion.div>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 1.5 }}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 cursor-pointer"
+          onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+        >
+          <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">Explore Journey</span>
+          <ChevronDown className="h-4 w-4 text-white/30 animate-bounce" />
+        </motion.div>
+      </section>
+
+      {/* Impact Numbers */}
+      <section className="relative z-10 py-32 px-6">
+        <SectionWrapper>
+          <div className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-24 text-center">
+              {geminiContent.metrics.items.map((stat, idx) => (
+                <div key={stat.label} className="space-y-4">
+                  <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">{stat.label}</span>
+                  <div className="text-6xl md:text-8xl font-geminiDisplay font-medium tracking-tighter text-white">
+                    {stat.value === 'TBD' ? '0' + (idx + 1) : stat.value}
+                  </div>
+                  <p className="text-sm text-white/50 leading-relaxed max-w-[200px] mx-auto">{stat.detail}</p>
+                </div>
               ))}
             </div>
-
-            <div className="flex flex-wrap gap-3">
-              <Link
-                to={geminiContent.hero.cta.primary.href}
-                className="inline-flex items-center gap-2 rounded-full bg-gemini-cobalt px-6 py-3 text-white text-sm font-semibold shadow-[0_18px_45px_rgba(45,91,255,0.35)] hover:translate-y-[-2px] transition"
-              >
-                {geminiContent.hero.cta.primary.label}
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to={geminiContent.hero.cta.secondary.href}
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white/70 hover:text-white hover:border-white/40 transition"
-              >
-                {geminiContent.hero.cta.secondary.label}
-              </Link>
-            </div>
-          </motion.div>
-
-          <motion.div {...fadeUp} transition={{ duration: 0.7, delay: 0.1 }} className="space-y-4">
-            <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-white/10 via-transparent to-white/5 p-3 shadow-[0_40px_120px_rgba(15,23,42,0.7)]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(66,133,244,0.2),transparent_55%)]" />
-              <div className="relative h-[360px] rounded-[30px] border border-white/10 bg-[#0b1019]">
-                <GeminiHeroScene />
-                <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-black/60 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/70">
-                  3D Gemini Field
-                </div>
-                <div className="absolute bottom-6 right-6 rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-xs text-white/70">
-                  Starfield + orbital labs
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                <div className="flex items-center justify-between text-xs uppercase tracking-[0.25em] text-white/50">
-                  <span>Ambassador</span>
-                  <BadgeCheck className="h-4 w-4 text-gemini-cobalt" />
-                </div>
-                <p className="mt-3 text-sm text-white/70">Gemini demos, campus workshops, builder support.</p>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                <div className="flex items-center justify-between text-xs uppercase tracking-[0.25em] text-white/50">
-                  <span>Latest Drop</span>
-                  <Video className="h-4 w-4 text-gemini-mint" />
-                </div>
-                <p className="mt-3 text-sm text-white/70">{latestUpdate?.title ?? 'Gemini showcase update'}</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+          </div>
+        </SectionWrapper>
       </section>
 
-      <section className="relative z-10 px-6 pb-12 md:px-12 md:pb-16">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.3fr_0.7fr] items-center">
-          <motion.div {...fadeUp} className="rounded-[36px] border border-white/10 bg-white/5 p-5 md:p-7 shadow-[0_40px_120px_rgba(10,12,20,0.7)]">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Hero Video</p>
-                <h3 className="mt-2 text-2xl md:text-3xl font-semibold text-white">{geminiContent.video.title}</h3>
-                <p className="mt-2 text-sm text-white/60 max-w-lg">{geminiContent.video.subtitle}</p>
+      {/* Video Showcase Section - 3D CARDS */}
+      <section className="relative z-10 py-32 px-6 overflow-hidden">
+        <div className="mx-auto max-w-7xl">
+          <SectionWrapper>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
+              <div className="space-y-6 text-center md:text-left">
+                <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">Interactive Showcase</span>
+                <h2 className="font-geminiDisplay text-5xl md:text-8xl font-medium tracking-tighter leading-none">
+                  VISUAL <br /> <span className="text-white/20">EVIDENCE</span>
+                </h2>
               </div>
-              <span className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/50">
-                <Video className="w-4 h-4 text-gemini-cobalt" />
-                Fast load
-              </span>
+              <p className="max-w-md text-lg text-white/40 font-light text-center md:text-right">
+                A collection of real-world impact captured through Google-led initiatives and campus demos.
+              </p>
             </div>
+          </SectionWrapper>
 
-            <div className="mt-6 relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black/40">
-              {hasHeroVideo ? (
-                geminiContent.video.embedUrl ? (
-                  <iframe
-                    className="h-full w-full"
-                    src={geminiContent.video.embedUrl}
-                    title={geminiContent.video.title}
-                    loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {videoShowcases.map((video, idx) => (
+              <SectionWrapper key={video.title}>
+                <motion.div 
+                  whileHover={{ rotateY: 5, rotateX: -5, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="group relative aspect-video rounded-3xl overflow-hidden bg-white/5 border border-white/10 transition-all hover:border-white/30"
+                >
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="h-full w-full object-cover opacity-50 grayscale transition-all duration-1000 group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0"
                   />
-                ) : (
-                  <video
-                    className="h-full w-full object-cover"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    poster={geminiContent.video.poster}
-                  >
-                    <source src={geminiContent.video.fileUrl ?? ''} type={geminiContent.video.fileType} />
-                    Your browser does not support the video tag.
-                  </video>
-                )
-              ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-center px-6">
-                  <PlayCircle className="h-12 w-12 text-gemini-cobalt" />
-                  <p className="text-sm text-white/60">{geminiContent.video.caption}</p>
-                  <Link
-                    to={geminiContent.video.cta.href}
-                    className="inline-flex items-center gap-2 rounded-full bg-gemini-cobalt px-5 py-2 text-xs font-semibold text-white hover:bg-gemini-cobalt/90 transition"
-                  >
-                    {geminiContent.video.cta.label}
-                  </Link>
-                </div>
-              )}
-            </div>
-          </motion.div>
-
-          <motion.div {...fadeUp} transition={{ duration: 0.6, delay: 0.1 }} className="space-y-4">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-              <p className="text-xs uppercase tracking-[0.3em] text-white/50">Video Mode</p>
-              <p className="mt-3 text-sm text-white/70">Autoplay loop preview for quick Gemini walkthroughs.</p>
-              <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/60">
-                <span className="rounded-full border border-white/10 px-3 py-1">Muted</span>
-                <span className="rounded-full border border-white/10 px-3 py-1">Fast load</span>
-                <span className="rounded-full border border-white/10 px-3 py-1">Mobile safe</span>
-              </div>
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-              <p className="text-xs uppercase tracking-[0.3em] text-white/50">Featured</p>
-              <p className="mt-3 text-sm text-white/70">Demos, labs, and campus sessions curated weekly.</p>
-              <Link
-                to="/contact"
-                className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gemini-cobalt"
-              >
-                Request the full reel
-                <ArrowUpRight className="h-3 w-3" />
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="relative z-10 px-6 pb-8 md:px-12 md:pb-12">
-        <div className="mx-auto max-w-6xl">
-          <motion.div {...fadeUp} className="flex flex-col gap-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-white/50">Task Tracks</p>
-            <h2 className="font-geminiDisplay text-3xl md:text-4xl text-white">{geminiContent.tasks.title}</h2>
-            <p className="text-white/60 max-w-2xl">{geminiContent.tasks.subtitle}</p>
-          </motion.div>
-          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {geminiContent.tasks.items.map((task, index) => {
-              const statusStyles: Record<string, string> = {
-                Mandatory: 'border-gemini-cobalt/40 bg-gemini-cobalt/15 text-gemini-cobalt',
-                Booster: 'border-gemini-sun/40 bg-gemini-sun/15 text-gemini-sun',
-                'Coming Soon': 'border-gemini-ember/40 bg-gemini-ember/15 text-gemini-ember',
-              };
-              const isComingSoon = task.status === 'Coming Soon';
-              return (
-                <motion.div
-                  key={task.title}
-                  {...fadeUp}
-                  transition={{ duration: 0.6, delay: index * 0.05 }}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(10,12,20,0.35)] flex flex-col"
-                >
-                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-white/50">
-                    <span className={`rounded-full border px-3 py-1 font-semibold ${statusStyles[task.status] || 'border-white/10 bg-white/5 text-white/70'}`}>
-                      {task.status}
-                    </span>
-                    <span>Monthly</span>
-                  </div>
-                  <h3 className="mt-4 text-xl font-semibold text-white">{task.title}</h3>
-                  <p className="mt-2 text-sm text-white/60">{task.description}</p>
-                  <div className="mt-6">
-                    {isComingSoon ? (
-                      <span className="inline-flex items-center justify-center rounded-full border border-gemini-ember/40 bg-gemini-ember/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-gemini-ember">
-                        {task.cta.label}
-                      </span>
-                    ) : (
-                      <Link
-                        to={task.cta.href ?? '/contact'}
-                        className="inline-flex items-center justify-center rounded-full bg-gemini-cobalt px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-[0_10px_30px_rgba(66,133,244,0.35)] hover:bg-gemini-cobalt/90 transition"
-                      >
-                        {task.cta.label}
-                      </Link>
-                    )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
+                  
+                  <div className="absolute inset-0 p-12 flex flex-col justify-end">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <span className="px-4 py-1 rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-[9px] uppercase tracking-widest">{video.type}</span>
+                        <span className="text-[10px] text-white/40 font-mono tracking-widest">{video.duration}</span>
+                      </div>
+                      <h3 className="text-3xl font-medium tracking-tight group-hover:translate-x-2 transition-transform duration-500">{video.title}</h3>
+                      <p className="text-sm text-white/40 line-clamp-2 max-w-sm group-hover:text-white/70 transition-colors">{video.description}</p>
+                      <div className="pt-6">
+                        <button className="flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold text-white group/btn">
+                          <div className="h-8 w-8 rounded-full border border-white/20 flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-black transition-all">
+                            <Play className="h-3 w-3 fill-current" />
+                          </div>
+                          Play Showcase
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
-              );
-            })}
+              </SectionWrapper>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 px-6 pb-8 md:px-12 md:pb-12">
-        <div className="mx-auto max-w-6xl">
-          <motion.div {...fadeUp} className="flex flex-col gap-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-white/50">Metrics</p>
-            <h2 className="font-geminiDisplay text-3xl md:text-4xl text-white">{geminiContent.metrics.title}</h2>
-            <p className="text-white/60 max-w-2xl">{geminiContent.metrics.subtitle}</p>
-          </motion.div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {geminiContent.metrics.items.map((item, index) => {
-              const icons = [Users, Megaphone, Sparkles];
-              const Icon = icons[index % icons.length];
-              return (
-                <motion.div
-                  key={item.label}
-                  {...fadeUp}
-                  transition={{ duration: 0.6, delay: index * 0.05 }}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(10,12,20,0.35)]"
-                >
-                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-white/50">
-                    <span>{item.label}</span>
-                    <Icon className="h-4 w-4 text-gemini-cobalt" />
-                  </div>
-                  <p className="mt-4 text-3xl font-semibold text-white">{item.value}</p>
-                  <p className="mt-2 text-sm text-white/60">{item.detail}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative z-10 px-6 py-16 md:px-12 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <motion.div {...fadeUp} className="flex flex-col gap-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-white/50">Proof</p>
-            <h2 className="font-geminiDisplay text-3xl md:text-4xl text-white">{geminiContent.proof.title}</h2>
-            <p className="text-white/60 max-w-2xl">{geminiContent.proof.subtitle}</p>
-          </motion.div>
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {geminiContent.proof.items.map((item, index) => {
-              const icons = [BadgeCheck, Users, Megaphone, Sparkles];
-              const Icon = icons[index % icons.length];
-              const isExternal = item.link ? isExternalLink(item.link.href) : false;
-              return (
-                <motion.div
-                  key={item.title}
-                  {...fadeUp}
-                  transition={{ duration: 0.6, delay: index * 0.05 }}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(10,12,20,0.35)]"
-                >
-                  <div className="flex items-center justify-between">
-                    <Icon className="h-6 w-6 text-gemini-cobalt" />
-                    <span className="text-xs uppercase tracking-[0.2em] text-white/50">{item.detail}</span>
-                  </div>
-                  <h3 className="mt-4 text-xl font-semibold text-white">{item.title}</h3>
-                  <p className="mt-2 text-sm text-white/60">{item.description}</p>
-                  {item.link ? (
-                    <a
-                      href={item.link.href}
-                      target={isExternal ? '_blank' : undefined}
-                      rel={isExternal ? 'noopener noreferrer' : undefined}
-                      className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gemini-cobalt hover:text-white transition"
-                    >
-                      {item.link.label}
-                      <ArrowUpRight className="h-3 w-3" />
-                    </a>
-                  ) : null}
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative z-10 px-6 py-16 md:px-12 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <motion.div {...fadeUp} className="flex flex-col gap-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-white/50">Showcase</p>
-            <h2 className="font-geminiDisplay text-3xl md:text-4xl text-white">{geminiContent.video.title}</h2>
-            <p className="text-white/60">{geminiContent.video.subtitle}</p>
-          </motion.div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {videoShowcases.map((video, index) => {
-              const isExternal = isExternalLink(video.href);
-              const cardBody = (
-                <>
-                  <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/40">
-                    <img
-                      src={video.thumbnail}
-                      alt={`${video.title} thumbnail`}
-                      className="h-28 w-full object-cover opacity-75 transition-opacity duration-500 group-hover:opacity-100"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <span className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/80">
-                      {video.type}
-                    </span>
-                  </div>
-                  <div className="mt-4 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-white/50">
-                    <span>{video.duration}</span>
-                    <span className="text-gemini-cobalt">Watch</span>
-                  </div>
-                  <h4 className="mt-2 text-sm font-semibold text-white">{video.title}</h4>
-                  <p className="mt-2 text-xs text-white/60">{video.description}</p>
-                </>
-              );
-              return (
-                <motion.div key={video.title} {...fadeUp} transition={{ duration: 0.5, delay: index * 0.05 }}>
-                  {isExternal ? (
-                    <a
-                      href={video.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group block rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-gemini-cobalt/40 hover:bg-white/10"
-                    >
-                      {cardBody}
-                    </a>
-                  ) : (
-                    <Link
-                      to={video.href}
-                      className="group block rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-gemini-cobalt/40 hover:bg-white/10"
-                    >
-                      {cardBody}
+      {/* Initiatives - STAGGERED LIST */}
+      <section className="relative z-10 py-32 px-6">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
+            <div className="lg:col-span-5">
+              <SectionWrapper>
+                <div className="space-y-8 sticky top-32">
+                  <span className="text-[10px] uppercase tracking-[0.4em] text-white/30">Strategic Pillars</span>
+                  <h2 className="font-geminiDisplay text-5xl md:text-7xl font-medium tracking-tighter leading-[0.9]">
+                    THE <br /> <span className="text-white/20">PLAYBOOK</span>
+                  </h2>
+                  <p className="text-white/50 text-lg font-light leading-relaxed">
+                    Systematic growth through creator-led content, campus workshops, and deep product understanding.
+                  </p>
+                  <div className="pt-8">
+                    <Link to="/contact" className="group flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] font-bold text-white">
+                      <span className="border-b border-white pb-1 group-hover:text-white/60 group-hover:border-white/60 transition-all">Collaborate</span>
+                      <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                     </Link>
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative z-10 px-6 py-16 md:px-12 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <motion.div {...fadeUp} className="flex flex-col gap-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-white/50">Initiatives</p>
-            <h2 className="font-geminiDisplay text-3xl md:text-4xl text-white">{geminiContent.initiatives.title}</h2>
-            <p className="text-white/60 max-w-2xl">{geminiContent.initiatives.subtitle}</p>
-          </motion.div>
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {geminiContent.initiatives.items.map((item, index) => (
-              <motion.div
-                key={item.title}
-                {...fadeUp}
-                transition={{ duration: 0.6, delay: index * 0.05 }}
-                className="rounded-3xl border border-white/10 bg-white/5 p-6"
-              >
-                <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-white/50">
-                  <span>{item.timeframe}</span>
-                  <Calendar className="h-4 w-4" />
-                </div>
-                <h3 className="mt-4 text-xl font-semibold text-white">{item.title}</h3>
-                <p className="mt-2 text-sm text-white/60">{item.description}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {item.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-gemini-cobalt/10 px-3 py-1 text-xs font-semibold text-gemini-cobalt"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                {item.outcome ? (
-                  <div className="mt-4 rounded-2xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/70">
-                    {item.outcome}
                   </div>
-                ) : null}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative z-10 px-6 py-16 md:px-12 md:py-20">
-        <div className="mx-auto max-w-6xl grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-          <motion.div {...fadeUp} className="space-y-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-white/50">Updates</p>
-            <h2 className="font-geminiDisplay text-3xl md:text-4xl text-white">{geminiContent.updates.title}</h2>
-            <p className="text-white/60">{geminiContent.updates.subtitle}</p>
-            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70 flex items-center gap-3">
-              <GraduationCap className="h-5 w-5 text-gemini-mint" />
-              Each update is backed by a demo, a workshop, or a community touchpoint.
+                </div>
+              </SectionWrapper>
             </div>
-          </motion.div>
-          <div className="space-y-4">
-            {geminiContent.updates.items.map((item, index) => {
-              const statusStyles: Record<string, string> = {
-                Published: 'bg-gemini-mint/15 text-gemini-mint',
-                Scheduled: 'bg-gemini-cobalt/10 text-gemini-cobalt',
-                Planned: 'bg-gemini-sun/20 text-gemini-sun',
-              };
-              return (
-                <motion.div
-                  key={item.title}
-                  {...fadeUp}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-6"
-                >
-                  <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-white/50">
-                    <span>{item.date}</span>
-                    <span className={`rounded-full px-3 py-1 font-semibold ${statusStyles[item.status] || 'bg-white/10 text-white/70'}`}>
-                      {item.status}
-                    </span>
+
+            <div className="lg:col-span-7 space-y-6">
+              {geminiContent.tasks.items.map((task, idx) => (
+                <SectionWrapper key={task.title}>
+                  <div className="p-12 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-white/20 transition-all group flex flex-col md:flex-row justify-between gap-8">
+                    <div className="space-y-4 flex-1">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-1 w-1 rounded-full ${task.status === 'Mandatory' ? 'bg-white' : 'bg-white/20'}`} />
+                        <span className="text-[9px] uppercase tracking-[0.4em] text-white/40">{task.status}</span>
+                      </div>
+                      <h3 className="text-2xl font-medium group-hover:text-white transition-colors">{task.title}</h3>
+                      <p className="text-sm text-white/40 leading-relaxed max-w-md">{task.description}</p>
+                    </div>
+                    <div className="flex items-center justify-end">
+                      <div className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-white group-hover:text-black transition-all">
+                        <ArrowUpRight className="h-5 w-5" />
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="mt-3 text-xl font-semibold text-white">{item.title}</h3>
-                  <p className="mt-2 text-sm text-white/60">{item.description}</p>
-                  {item.notes ? (
-                    <ul className="mt-3 list-disc space-y-1 pl-4 text-xs text-white/50">
-                      {item.notes.map((note) => (
-                        <li key={note}>{note}</li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </motion.div>
-              );
-            })}
+                </SectionWrapper>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 px-6 py-16 md:px-12 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <motion.div {...fadeUp} className="flex flex-col gap-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-white/50">Highlights</p>
-            <h2 className="font-geminiDisplay text-3xl md:text-4xl text-white">{geminiContent.highlights.title}</h2>
-            <p className="text-white/60 max-w-2xl">{geminiContent.highlights.subtitle}</p>
-          </motion.div>
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {geminiContent.highlights.items.map((item, index) => {
-              const highlightStatusStyles: Record<string, string> = {
-                Published: 'bg-gemini-mint/15 text-gemini-mint',
-                Scheduled: 'bg-gemini-cobalt/10 text-gemini-cobalt',
-                Planned: 'bg-gemini-sun/20 text-gemini-sun',
-              };
-              const isExternal = item.link ? isExternalLink(item.link.href) : false;
-              return (
-                <motion.div
-                  key={item.title}
-                  {...fadeUp}
-                  transition={{ duration: 0.6, delay: index * 0.05 }}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(10,12,20,0.35)]"
-                >
-                  <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-white/50">
-                    <span>{item.date}</span>
-                    <span className={`rounded-full px-3 py-1 font-semibold ${highlightStatusStyles[item.status] || 'bg-white/10 text-white/70'}`}>
-                      {item.status}
-                    </span>
-                  </div>
-                  <h3 className="mt-3 text-xl font-semibold text-white">{item.title}</h3>
-                  <p className="mt-2 text-sm text-white/60">{item.description}</p>
-                  <p className="mt-4 text-xs uppercase tracking-[0.2em] text-white/50">{item.source}</p>
-                  {item.link ? (
-                    <a
-                      href={item.link.href}
-                      target={isExternal ? '_blank' : undefined}
-                      rel={isExternal ? 'noopener noreferrer' : undefined}
-                      className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gemini-cobalt hover:text-white transition"
-                    >
-                      {item.link.label}
-                      <ArrowUpRight className="h-3 w-3" />
-                    </a>
-                  ) : null}
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative z-10 px-6 py-16 md:px-12 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <motion.div {...fadeUp} className="flex flex-col gap-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-white/50">Assets</p>
-            <h2 className="font-geminiDisplay text-3xl md:text-4xl text-white">{geminiContent.logos.title}</h2>
-            <p className="text-white/60 max-w-2xl">{geminiContent.logos.subtitle}</p>
-          </motion.div>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {geminiContent.logos.items.map((logo) => (
-              <div
-                key={logo.src}
-                className="rounded-3xl border border-white/10 bg-white/5 p-6 flex items-center justify-center min-h-[160px]"
-              >
-                <img
-                  src={logo.src}
-                  alt={logo.alt}
-                  className="max-h-20 w-auto object-contain"
-                  loading="lazy"
-                />
+      {/* Credentials Section - BLACK ON WHITE (INVERTED) */}
+      <section className="relative z-10 py-32 px-6 bg-white text-black rounded-[4rem] mx-4 md:mx-12 mb-32 overflow-hidden">
+        <motion.div 
+          className="absolute top-0 right-0 h-96 w-96 bg-black/[0.02] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" 
+        />
+        <div className="mx-auto max-w-7xl relative z-10">
+          <SectionWrapper>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-12 mb-24">
+              <div className="space-y-6">
+                <span className="text-[10px] uppercase tracking-[0.4em] text-black/30">Authority</span>
+                <h2 className="font-geminiDisplay text-5xl md:text-8xl font-medium tracking-tighter leading-[0.85]">
+                  OFFICIAL <br /> VERIFICATION
+                </h2>
               </div>
+              <p className="max-w-md text-xl text-black/60 font-light leading-relaxed">
+                Authorized credentials verifying active participation in the Google Gemini Campus Ambassador program.
+              </p>
+            </div>
+          </SectionWrapper>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {geminiContent.proof.items.map((item, idx) => (
+              <SectionWrapper key={item.title}>
+                <div className="h-full p-10 rounded-[2.5rem] border border-black/10 bg-black/[0.01] hover:bg-black/5 transition-all flex flex-col justify-between group">
+                  <div>
+                    <div className="h-12 w-12 rounded-2xl bg-black flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
+                      <BadgeCheck className="h-6 w-6 text-white" />
+                    </div>
+                    <h4 className="text-[10px] uppercase tracking-[0.3em] font-bold text-black/40 mb-3">{item.detail}</h4>
+                    <h3 className="text-2xl font-medium mb-4">{item.title}</h3>
+                    <p className="text-sm text-black/50 leading-relaxed">{item.description}</p>
+                  </div>
+                  <div className="pt-10">
+                    <a href={item.link.href} className="inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold border-b-2 border-black pb-1 hover:text-black/60 hover:border-black/60 transition-all">
+                      Confirm <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </div>
+              </SectionWrapper>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 px-6 pb-20 md:px-12 md:pb-28">
-        <div className="mx-auto max-w-5xl rounded-[36px] border border-white/10 bg-white/5 text-white px-8 py-12 md:px-12 md:py-14 shadow-[0_30px_80px_rgba(10,12,20,0.6)]">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-white/60">Next Steps</p>
-              <h2 className="font-geminiDisplay text-3xl md:text-4xl text-white">{geminiContent.cta.title}</h2>
-              <p className="text-white/60">{geminiContent.cta.subtitle}</p>
+      {/* CTA Section - GRAND FINALE */}
+      <section className="relative z-10 py-48 px-6 text-center">
+        <SectionWrapper>
+          <div className="mx-auto max-w-5xl space-y-16">
+            <div className="space-y-8">
+              <span className="text-[10px] uppercase tracking-[0.6em] text-white/30">The Future is Generative</span>
+              <h2 className="font-geminiDisplay text-6xl md:text-[10rem] font-medium tracking-tighter leading-[0.85]">
+                BUILD WITH <br /> <span className="text-white/10">SOURABH</span>
+              </h2>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
               <Link
                 to={geminiContent.cta.primary.href}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0b0f14] hover:bg-white/90 transition"
+                className="w-full sm:w-auto px-16 py-8 bg-white text-black rounded-full font-bold text-sm uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-[0_20px_50px_rgba(255,255,255,0.2)]"
               >
                 {geminiContent.cta.primary.label}
-                <ArrowUpRight className="h-4 w-4" />
               </Link>
               <a
                 href={geminiContent.cta.secondary.href}
-                className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white/80 hover:text-white hover:border-white/60 transition"
+                className="w-full sm:w-auto px-16 py-8 border border-white/20 rounded-full font-bold text-sm uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all"
               >
-                {geminiContent.cta.secondary.label}
+                Direct Inquiry
               </a>
             </div>
           </div>
-        </div>
+        </SectionWrapper>
       </section>
 
-      <footer className="relative z-10 px-6 pb-10 md:px-12">
-        <div className="mx-auto max-w-6xl flex flex-col gap-2 text-xs uppercase tracking-[0.25em] text-white/50">
-          <span>Gemini Ambassador Portfolio</span>
-          <span>Copyright {new Date().getFullYear()} Sourabh Singh</span>
+      {/* Footer */}
+      <footer className="relative z-10 px-6 py-12 border-t border-white/5 mx-6 md:mx-12 mt-32">
+        <div className="mx-auto max-w-7xl flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-6">
+            <img src="/assets/geminiLogo/Google Logo.png" alt="Google" className="h-5 invert opacity-20" />
+            <div className="h-4 w-px bg-white/10" />
+            <div className="text-left">
+              <p className="text-[10px] uppercase tracking-[0.4em] text-white/40">Sourabh Singh</p>
+              <p className="text-[9px] uppercase tracking-[0.4em] text-white/20">Gemini Campus Ambassador © 2026</p>
+            </div>
+          </div>
+          <div className="flex gap-12">
+            <Link to="/" className="text-[10px] uppercase tracking-[0.4em] text-white/30 hover:text-white transition-colors">Home</Link>
+            <Link to="/services" className="text-[10px] uppercase tracking-[0.4em] text-white/30 hover:text-white transition-colors">Services</Link>
+            <Link to="/contact" className="text-[10px] uppercase tracking-[0.4em] text-white/30 hover:text-white transition-colors">Contact</Link>
+          </div>
         </div>
       </footer>
     </main>

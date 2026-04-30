@@ -108,11 +108,45 @@ export const geminiContent = {
     },
     video: {
         title: "Gemini Showcase Video",
-        subtitle: "A short walkthrough of my Gemini projects and community sessions.",
-        embedUrl: "",
+        subtitle: "A cinematic walkthrough of my Gemini projects and community impact.",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder
         fileUrl: "",
         poster: "/assets/geminiLogo/Google Gemini Logo on White.png",
-        caption: "Add your showcase link in geminiContent.ts to replace this placeholder.",
+        caption: "Watch the latest Gemini walkthrough",
+        showcases: [
+            {
+                title: "Gemini Pro Demo",
+                description: "Deep dive into multimodal capabilities.",
+                duration: "2:45",
+                type: "Demo",
+                thumbnail: "/assets/geminiLogo/01 (1).png",
+                href: "#"
+            },
+            {
+                title: "Campus Workshop",
+                description: "Highlights from the recent AI bootcamp.",
+                duration: "1:30",
+                type: "Event",
+                thumbnail: "/assets/geminiLogo/02 (1).png",
+                href: "#"
+            },
+            {
+                title: "Creative Storytelling",
+                description: "Using Gemini for narrative generation.",
+                duration: "3:15",
+                type: "Case Study",
+                thumbnail: "/assets/geminiLogo/03 (1).png",
+                href: "#"
+            },
+            {
+                title: "Builder Session",
+                description: "Live coding with Gemini APIs.",
+                duration: "5:20",
+                type: "Workshop",
+                thumbnail: "/assets/geminiLogo/04 (8).png",
+                href: "#"
+            }
+        ]
     },
     initiatives: {
         title: "Initiatives & Activities",
