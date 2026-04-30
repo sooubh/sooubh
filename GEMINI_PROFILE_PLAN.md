@@ -3,7 +3,7 @@
 ## Overview
 The /gemini page is a dedicated profile experience focused on ambassador proof, showcase media, ongoing updates, and a clear call-to-action. It is visually distinct from the home page and uses its own Tailwind theme tokens.
 
-## Current Status (as of 2026-04-29)
+## Current Status (as of 2026-04-30)
 - Route is live at /gemini.
 - Page layout and sections are implemented in components/pages/GeminiAmbassador.tsx.
 - Content is driven by lib/geminiContent.ts for easy updates.
@@ -12,6 +12,9 @@ The /gemini page is a dedicated profile experience focused on ambassador proof, 
 - Navbar does not show Gemini; footer contains the Gemini quick link.
 - Sitemap includes /gemini.
 - Showcase video is in placeholder mode (embedUrl and fileUrl are empty).
+- Metrics strip and community highlight sections are now on the Gemini page.
+- Proof cards include evidence link slots for credential and workshop references.
+- Initiatives include outcome targets and updates include release-note bullets.
 
 ## Full Plan for Gemini Profile
 1. Hero and badge
@@ -38,10 +41,9 @@ The /gemini page is a dedicated profile experience focused on ambassador proof, 
 
 ## Upcoming Changes
 - Add the real Gemini showcase video (embed or file).
-- Replace placeholder proof text with documented proof assets.
-- Update the updates list with real timelines and outcomes.
-- Add a small metrics strip (sessions delivered, attendees, demos shipped).
-- Add a press or community highlight section if available.
+- Replace placeholder proof links with documented proof assets.
+- Update metrics values with real quarterly counts.
+- Refresh update notes with confirmed outcomes and links.
 - Confirm the Gemini quick link placement in the footer matches the desired order.
 
 ## Where to Update

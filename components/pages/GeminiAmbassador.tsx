@@ -132,6 +132,37 @@ export const GeminiAmbassador: React.FC = () => {
         </div>
       </section>
 
+      <section className="relative z-10 px-6 pb-8 md:px-12 md:pb-12">
+        <div className="mx-auto max-w-6xl">
+          <motion.div {...fadeUp} className="flex flex-col gap-3">
+            <p className="text-xs uppercase tracking-[0.25em] text-gemini-ink/50">Metrics</p>
+            <h2 className="font-geminiDisplay text-3xl md:text-4xl">{geminiContent.metrics.title}</h2>
+            <p className="text-gemini-dusk max-w-2xl">{geminiContent.metrics.subtitle}</p>
+          </motion.div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            {geminiContent.metrics.items.map((item, index) => {
+              const icons = [Users, Megaphone, Sparkles];
+              const Icon = icons[index % icons.length];
+              return (
+                <motion.div
+                  key={item.label}
+                  {...fadeUp}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  className="rounded-3xl border border-gemini-ink/10 bg-white/80 p-6 shadow-[0_20px_45px_rgba(26,28,43,0.08)]"
+                >
+                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-gemini-ink/50">
+                    <span>{item.label}</span>
+                    <Icon className="h-4 w-4 text-gemini-cobalt" />
+                  </div>
+                  <p className="mt-4 text-3xl font-semibold text-gemini-ink">{item.value}</p>
+                  <p className="mt-2 text-sm text-gemini-dusk">{item.detail}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section className="relative z-10 px-6 py-16 md:px-12 md:py-20">
         <div className="mx-auto max-w-6xl">
           <motion.div {...fadeUp} className="flex flex-col gap-3">
@@ -156,6 +187,17 @@ export const GeminiAmbassador: React.FC = () => {
                   </div>
                   <h3 className="mt-4 text-xl font-semibold text-gemini-ink">{item.title}</h3>
                   <p className="mt-2 text-sm text-gemini-dusk">{item.description}</p>
+                  {item.link ? (
+                    <a
+                      href={item.link.href}
+                      target={item.link.external ? '_blank' : undefined}
+                      rel={item.link.external ? 'noopener noreferrer' : undefined}
+                      className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gemini-cobalt hover:text-gemini-ink transition"
+                    >
+                      {item.link.label}
+                      <ArrowUpRight className="h-3 w-3" />
+                    </a>
+                  ) : null}
                 </motion.div>
               );
             })}
@@ -240,6 +282,11 @@ export const GeminiAmbassador: React.FC = () => {
                     </span>
                   ))}
                 </div>
+                {item.outcome ? (
+                  <div className="mt-4 rounded-2xl border border-gemini-ink/10 bg-gemini-paper px-3 py-2 text-xs text-gemini-ink/70">
+                    {item.outcome}
+                  </div>
+                ) : null}
               </motion.div>
             ))}
           </div>
@@ -279,6 +326,61 @@ export const GeminiAmbassador: React.FC = () => {
                   </div>
                   <h3 className="mt-3 text-xl font-semibold text-gemini-ink">{item.title}</h3>
                   <p className="mt-2 text-sm text-gemini-dusk">{item.description}</p>
+                  {item.notes ? (
+                    <ul className="mt-3 list-disc space-y-1 pl-4 text-xs text-gemini-ink/60">
+                      {item.notes.map((note) => (
+                        <li key={note}>{note}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-6 py-16 md:px-12 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <motion.div {...fadeUp} className="flex flex-col gap-3">
+            <p className="text-xs uppercase tracking-[0.25em] text-gemini-ink/50">Highlights</p>
+            <h2 className="font-geminiDisplay text-3xl md:text-4xl">{geminiContent.highlights.title}</h2>
+            <p className="text-gemini-dusk max-w-2xl">{geminiContent.highlights.subtitle}</p>
+          </motion.div>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            {geminiContent.highlights.items.map((item, index) => {
+              const highlightStatusStyles: Record<string, string> = {
+                Published: 'bg-gemini-mint/15 text-gemini-mint',
+                Scheduled: 'bg-gemini-cobalt/10 text-gemini-cobalt',
+                Planned: 'bg-gemini-sun/20 text-gemini-dusk',
+              };
+              return (
+                <motion.div
+                  key={item.title}
+                  {...fadeUp}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  className="rounded-3xl border border-gemini-ink/10 bg-white/90 p-6 shadow-[0_20px_50px_rgba(26,28,43,0.08)]"
+                >
+                  <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-gemini-ink/50">
+                    <span>{item.date}</span>
+                    <span className={`rounded-full px-3 py-1 font-semibold ${highlightStatusStyles[item.status] || 'bg-gemini-ink/10 text-gemini-ink'}`}>
+                      {item.status}
+                    </span>
+                  </div>
+                  <h3 className="mt-3 text-xl font-semibold text-gemini-ink">{item.title}</h3>
+                  <p className="mt-2 text-sm text-gemini-dusk">{item.description}</p>
+                  <p className="mt-4 text-xs uppercase tracking-[0.2em] text-gemini-ink/50">{item.source}</p>
+                  {item.link ? (
+                    <a
+                      href={item.link.href}
+                      target={item.link.external ? '_blank' : undefined}
+                      rel={item.link.external ? 'noopener noreferrer' : undefined}
+                      className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gemini-cobalt hover:text-gemini-ink transition"
+                    >
+                      {item.link.label}
+                      <ArrowUpRight className="h-3 w-3" />
+                    </a>
+                  ) : null}
                 </motion.div>
               );
             })}
