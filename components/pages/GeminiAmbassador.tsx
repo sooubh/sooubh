@@ -187,17 +187,22 @@ export const GeminiAmbassador: React.FC = () => {
                   </div>
                   <h3 className="mt-4 text-xl font-semibold text-gemini-ink">{item.title}</h3>
                   <p className="mt-2 text-sm text-gemini-dusk">{item.description}</p>
-                  {item.link ? (
+                {item.link ? (
+                  (() => {
+                    const isExternal = /^(https?:|mailto:)/.test(item.link.href);
+                    return (
                     <a
                       href={item.link.href}
-                      target={item.link.external ? '_blank' : undefined}
-                      rel={item.link.external ? 'noopener noreferrer' : undefined}
+                      target={isExternal ? '_blank' : undefined}
+                      rel={isExternal ? 'noopener noreferrer' : undefined}
                       className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gemini-cobalt hover:text-gemini-ink transition"
                     >
                       {item.link.label}
                       <ArrowUpRight className="h-3 w-3" />
                     </a>
-                  ) : null}
+                    );
+                  })()
+                ) : null}
                 </motion.div>
               );
             })}
@@ -371,15 +376,20 @@ export const GeminiAmbassador: React.FC = () => {
                   <p className="mt-2 text-sm text-gemini-dusk">{item.description}</p>
                   <p className="mt-4 text-xs uppercase tracking-[0.2em] text-gemini-ink/50">{item.source}</p>
                   {item.link ? (
+                    (() => {
+                      const isExternal = /^(https?:|mailto:)/.test(item.link.href);
+                      return (
                     <a
                       href={item.link.href}
-                      target={item.link.external ? '_blank' : undefined}
-                      rel={item.link.external ? 'noopener noreferrer' : undefined}
+                      target={isExternal ? '_blank' : undefined}
+                      rel={isExternal ? 'noopener noreferrer' : undefined}
                       className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gemini-cobalt hover:text-gemini-ink transition"
                     >
                       {item.link.label}
                       <ArrowUpRight className="h-3 w-3" />
                     </a>
+                      );
+                    })()
                   ) : null}
                 </motion.div>
               );

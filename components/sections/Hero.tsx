@@ -17,11 +17,21 @@ export const Hero: React.FC = () => {
     { icon: Mail, href: "mailto:sourabh3527@gmail.com", label: "Email" },
   ];
 
-  const featuredVideo = {
+  type FeaturedVideo = {
+    title: string;
+    description: string;
+    embedUrl: string | null;
+    fileUrl: string | null;
+    fileType: string;
+    poster: string;
+    cta: { label: string; href: string };
+  };
+
+  const featuredVideo: FeaturedVideo = {
     title: "Featured AI Demo",
     description: "A fast-loading hero walkthrough of Gemini demos, product labs, and community sessions.",
-    embedUrl: null as string | null,
-    fileUrl: null as string | null,
+    embedUrl: null,
+    fileUrl: null,
     fileType: "video/mp4",
     poster: "/assets/hero1.webp",
     cta: { label: "Add Hero Video", href: "/contact" },
@@ -67,6 +77,7 @@ export const Hero: React.FC = () => {
   ];
 
   const hasHeroVideo = Boolean(featuredVideo.embedUrl || featuredVideo.fileUrl);
+  const heroVideoSource = featuredVideo.fileUrl ?? '';
 
   return (
     <section className="min-h-screen relative flex items-center justify-center overflow-hidden pt-12 md:pt-20">
@@ -252,7 +263,7 @@ export const Hero: React.FC = () => {
                                     preload="metadata"
                                     poster={featuredVideo.poster}
                                 >
-                                    <source src={featuredVideo.fileUrl} type={featuredVideo.fileType} />
+                                    <source src={heroVideoSource} type={featuredVideo.fileType} />
                                     Your browser does not support the video tag.
                                 </video>
                             )
@@ -260,11 +271,12 @@ export const Hero: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={() => setIsVideoActive(true)}
+                                aria-label="Play featured hero video preview"
                                 className="group relative flex h-full w-full items-center justify-center"
                             >
                                 <img
                                     src={featuredVideo.poster}
-                                    alt={`${featuredVideo.title} poster`}
+                                    alt=""
                                     className="h-full w-full object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-100"
                                     loading="eager"
                                 />
