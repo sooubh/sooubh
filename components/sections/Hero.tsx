@@ -1,24 +1,13 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Github, Linkedin, Twitter, Mail, FileText, PlayCircle, Video } from 'lucide-react';
+import { Github, Linkedin, Twitter, Mail } from 'lucide-react';
 import { LINKEDIN_URL } from '../../lib/content';
-
-type FeaturedVideo = {
-  title: string;
-  description: string;
-  embedUrl: string | null;
-  fileUrl: string | null;
-  fileType: string;
-  poster: string;
-  cta: { label: string; href: string };
-};
 
 export const Hero: React.FC = () => {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 200]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-  const [isVideoActive, setIsVideoActive] = React.useState(false);
 
   const socialLinks = [
     { icon: Github, href: "https://github.com/sooubh", label: "GitHub" },
@@ -26,57 +15,6 @@ export const Hero: React.FC = () => {
     { icon: Twitter, href: "https://twitter.com/sourabh_singgh", label: "Twitter" },
     { icon: Mail, href: "mailto:sourabh3527@gmail.com", label: "Email" },
   ];
-
-  const featuredVideo: FeaturedVideo = {
-    title: "Featured AI Demo",
-    description: "A fast-loading hero walkthrough of Gemini demos, product labs, and community sessions.",
-    embedUrl: null,
-    fileUrl: null,
-    fileType: "video/mp4",
-    poster: "/assets/hero1.webp",
-    cta: { label: "Add Hero Video", href: "/contact" },
-  };
-
-  const videoShowcases = [
-    {
-      title: "Gemini Prompt Lab",
-      type: "Tutorial",
-      duration: "8 min",
-      description: "Step-by-step prompt workflows and reusable templates.",
-      thumbnail: "/assets/geminiLogo/Google Gemini Logo on White.png",
-      href: "/services",
-      internal: true,
-    },
-    {
-      title: "Campus Demo Highlights",
-      type: "Showcase",
-      duration: "5 min",
-      description: "Highlights from live demos and builder sessions.",
-      thumbnail: "/assets/hero1.webp",
-      href: "/gemini",
-      internal: true,
-    },
-    {
-      title: "AI Builder Toolkit",
-      type: "Tutorial",
-      duration: "10 min",
-      description: "Quick-start guide for Gemini-powered builds.",
-      thumbnail: "/assets/logo.webp",
-      href: "/services",
-      internal: true,
-    },
-    {
-      title: "Project Walkthroughs",
-      type: "Showcase",
-      duration: "6 min",
-      description: "Live project breakdowns with outcomes and notes.",
-      thumbnail: "/assets/geminiLogo/Google Logo.png",
-      href: "/services",
-      internal: true,
-    },
-  ];
-
-  const hasHeroVideo = Boolean(featuredVideo.embedUrl || featuredVideo.fileUrl);
 
   return (
     <section className="min-h-screen relative flex items-center justify-center overflow-hidden pt-12 md:pt-20">
@@ -221,124 +159,6 @@ export const Hero: React.FC = () => {
                 </motion.div>
             </motion.div>
 
-        </div>
-
-        <div className="mt-12 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.1 }}
-                className="rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl p-6 md:p-8 shadow-2xl"
-            >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <p className="text-xs uppercase tracking-[0.3em] text-google-blue font-semibold">Hero Video</p>
-                        <h3 className="mt-2 text-2xl md:text-3xl font-semibold text-white">{featuredVideo.title}</h3>
-                        <p className="mt-2 text-sm text-gray-400 max-w-lg">{featuredVideo.description}</p>
-                    </div>
-                    <span className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-500">
-                        <Video className="w-4 h-4 text-google-blue" />
-                        Fast load
-                    </span>
-                </div>
-
-                <div className="mt-6 relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black/60">
-                    {hasHeroVideo ? (
-                        isVideoActive ? (
-                            featuredVideo.embedUrl ? (
-                                <iframe
-                                    className="h-full w-full"
-                                    src={featuredVideo.embedUrl}
-                                    title={featuredVideo.title}
-                                    loading="lazy"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                />
-                            ) : (
-                                <video
-                                    className="h-full w-full object-cover"
-                                    controls
-                                    playsInline
-                                    preload="metadata"
-                                    poster={featuredVideo.poster}
-                                >
-                                    <source src={featuredVideo.fileUrl ?? ''} type={featuredVideo.fileType} />
-                                    Your browser does not support the video tag.
-                                </video>
-                            )
-                        ) : (
-                            <button
-                                type="button"
-                                onClick={() => setIsVideoActive(true)}
-                                aria-label="Play featured hero video preview"
-                                className="group relative flex h-full w-full items-center justify-center"
-                            >
-                                <img
-                                    src={featuredVideo.poster}
-                                    alt=""
-                                    className="h-full w-full object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-100"
-                                    loading="eager"
-                                />
-                                <span className="absolute inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur-md transition group-hover:bg-white/20">
-                                    <PlayCircle className="h-5 w-5 text-google-blue" />
-                                    Play preview
-                                </span>
-                            </button>
-                        )
-                    ) : (
-                        <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-center px-6">
-                            <PlayCircle className="h-12 w-12 text-google-blue" />
-                            <p className="text-sm text-gray-300">Add a hero video to showcase your demos and tutorials.</p>
-                            <Link
-                                to={featuredVideo.cta.href}
-                                className="inline-flex items-center gap-2 rounded-full bg-google-blue px-5 py-2 text-xs font-semibold text-white hover:bg-google-blue/90 transition"
-                            >
-                                {featuredVideo.cta.label}
-                            </Link>
-                        </div>
-                    )}
-                </div>
-            </motion.div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.2 }}
-                className="grid gap-4 sm:grid-cols-2"
-            >
-                {videoShowcases.map((video) => {
-                    const CardLink = video.internal ? Link : 'a';
-                    const cardProps = video.internal
-                        ? { to: video.href }
-                        : { href: video.href, target: '_blank', rel: 'noopener noreferrer' };
-                    return (
-                        <CardLink
-                            key={video.title}
-                            {...cardProps}
-                            className="group rounded-2xl border border-white/10 bg-black/40 p-4 transition hover:border-google-blue/40 hover:bg-black/60"
-                        >
-                            <div className="relative overflow-hidden rounded-xl border border-white/5 bg-black/70">
-                                <img
-                                    src={video.thumbnail}
-                                    alt={`${video.title} thumbnail`}
-                                    className="h-28 w-full object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-100"
-                                    loading="lazy"
-                                    decoding="async"
-                                />
-                                <span className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/80">
-                                    {video.type}
-                                </span>
-                            </div>
-                            <div className="mt-4 flex items-center justify-between text-xs uppercase tracking-[0.2em] text-gray-500">
-                                <span>{video.duration}</span>
-                                <span className="text-google-blue">Watch</span>
-                            </div>
-                            <h4 className="mt-2 text-sm font-semibold text-white">{video.title}</h4>
-                            <p className="mt-2 text-xs text-gray-400">{video.description}</p>
-                        </CardLink>
-                    );
-                })}
-            </motion.div>
         </div>
 
         {/* Scroll Indicator */}
