@@ -188,9 +188,12 @@ export const RealProjects: React.FC = () => {
                                     <p className={`text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3 ${index % 2 === 1 ? 'text-right' : ''}`}>
                                         Key Features
                                     </p>
-                                    <ul className={`list-disc list-inside space-y-2 text-gray-400 text-lg leading-relaxed ${index % 2 === 1 ? 'text-right' : ''}`}>
+                                    <ul className="space-y-2 text-gray-400 text-lg leading-relaxed">
                                         {project.features.map(feature => (
-                                            <li key={feature}>{feature}</li>
+                                            <li key={feature} className={`flex gap-3 ${index % 2 === 1 ? 'justify-end' : ''}`}>
+                                                <span className="mt-1 text-gray-500">•</span>
+                                                <span className={index % 2 === 1 ? 'text-right' : ''}>{feature}</span>
+                                            </li>
                                         ))}
                                     </ul>
                                 </div>
@@ -209,6 +212,8 @@ export const RealProjects: React.FC = () => {
                                 <a 
                                     href={project.link} 
                                     onClick={(e) => { e.preventDefault(); setIsComingSoonOpen(true); }}
+                                    aria-label="View Live (coming soon)"
+                                    title="Coming soon"
                                     className="flex items-center gap-2 text-white hover:text-google-blue transition-colors group/link cursor-pointer"
                                 >
                                     <span className="border-b border-transparent group-hover/link:border-google-blue">View Live</span>
