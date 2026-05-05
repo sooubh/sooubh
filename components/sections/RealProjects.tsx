@@ -177,8 +177,8 @@ export const RealProjects: React.FC = () => {
                                         Tech Stack
                                     </p>
                                     <div className={`flex flex-wrap gap-2 ${index % 2 === 1 ? 'justify-end' : ''}`}>
-                                        {project.techStack.map(stack => (
-                                            <span key={stack} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
+                                        {project.techStack.map((stack, stackIndex) => (
+                                            <span key={`${project.id}-stack-${stackIndex}`} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
                                                 {stack}
                                             </span>
                                         ))}
@@ -189,8 +189,8 @@ export const RealProjects: React.FC = () => {
                                         Key Features
                                     </p>
                                     <ul className="space-y-2 text-gray-400 text-lg leading-relaxed">
-                                        {project.features.map(feature => (
-                                            <li key={feature} className={`flex gap-3 ${index % 2 === 1 ? 'justify-end' : ''}`}>
+                                        {project.features.map((feature, featureIndex) => (
+                                            <li key={`${project.id}-feature-${featureIndex}`} className="flex gap-3">
                                                 <span className="mt-1 text-gray-500" aria-hidden="true">&bull;</span>
                                                 <span>{feature}</span>
                                             </li>
