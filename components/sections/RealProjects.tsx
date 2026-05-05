@@ -5,36 +5,67 @@ import { ArrowUpRight, Github, ExternalLink, Layers, Terminal, Sparkles } from '
 const projects = [
     {
         id: "01",
-        title: "StockHealth AI",
-        category: "FinTech & AI",
-        desc: "An advanced market intelligence dashboard. It leverages machine learning models to provide real-time stock health scores, predictive trend analysis, and automated risk assessments.",
-        tags: ["React", "Python", "TensorFlow", "FastAPI"],
-        link: "#",
-        github: "#",
+        title: "LegalEase AI — Legal Document Analyzer",
+        category: "Portfolio Project",
+        github: "https://github.com/genaitics/legalDoc",
+        link: "https://github.com/genaitics/legalDoc",
+        techStack: ["React", "TypeScript", "Firebase", "Gemini AI"],
+        features: [
+            "Upload contracts and get AI summaries and risk highlights",
+            "Bilingual output in English and Hindi",
+            "AI chat for document-based questions",
+            "Lawyer suggestion based on context"
+        ],
         color: "from-green-400 to-emerald-600",
         shadow: "shadow-green-500/20"
     },
     {
         id: "02",
-        title: "AI Portfolio",
-        category: "Creative Dev",
-        desc: "A next-generation personal website featuring voice-controlled navigation, 3D solar system visualizations, and a fully integrated AI assistant powered by advanced AI models.",
-        tags: ["Three.js", "AI API", "R3F", "Framer Motion"],
-        link: "#",
-        github: "#",
+        title: "Student Financial OS — College Finance Manager",
+        category: "Portfolio Project",
+        github: "https://github.com/genaitics/summer-hacks-v2",
+        link: "https://github.com/genaitics/summer-hacks-v2",
+        techStack: ["Flutter", "Firebase", "Riverpod", "Gemini AI"],
+        features: [
+            "Expense tracking and bill splitting",
+            "AI spending insights",
+            "Automated monthly reports and notifications",
+            "Award: 1st Runner-Up at SummerHacks"
+        ],
         color: "from-blue-400 to-purple-600",
         shadow: "shadow-blue-500/20"
     },
     {
         id: "03",
-        title: "DateVibe",
-        category: "Mobile App",
-        desc: "A modern dating platform focused on algorithm-based compatibility matching. Features real-time chat, profile verification, and an intuitive swipe-based interface.",
-        tags: ["Flutter", "Firebase", "Dart", "Cloud Functions"],
-        link: "#",
-        github: "#",
+        title: "CARE-AI — AI Parenting Companion",
+        category: "Portfolio Project",
+        github: "https://github.com/sooubh/Care-Ai",
+        link: "https://github.com/sooubh/Care-Ai",
+        techStack: ["Flutter", "Firebase", "Gemini AI"],
+        features: [
+            "AI-based therapy guidance chat",
+            "Medication reminders",
+            "Doctor–parent connection",
+            "Works offline-first"
+        ],
         color: "from-pink-400 to-rose-600",
         shadow: "shadow-pink-500/20"
+    },
+    {
+        id: "04",
+        title: "KumbhSaathi — Pilgrim Safety App",
+        category: "Portfolio Project",
+        github: "https://github.com/genaitics/kumbhSaathi",
+        link: "https://github.com/genaitics/kumbhSaathi",
+        techStack: ["Flutter", "Firebase", "OpenStreetMap", "Gemini AI"],
+        features: [
+            "AI voice assistant with multilingual support",
+            "SOS alerts and live tracking",
+            "Crowd heatmaps",
+            "Works in low network conditions"
+        ],
+        color: "from-orange-400 to-amber-600",
+        shadow: "shadow-orange-500/20"
     }
 ];
 
@@ -140,19 +171,41 @@ export const RealProjects: React.FC = () => {
                                 {project.title}
                             </h3>
                             
-                            <p className="text-gray-400 text-lg leading-relaxed mb-8">
-                                {project.desc}
-                            </p>
-
-                            <div className={`flex flex-wrap gap-2 mb-8 ${index % 2 === 1 ? 'justify-end' : ''}`}>
-                                {project.tags.map(tag => (
-                                    <span key={tag} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
-                                        {tag}
-                                    </span>
-                                ))}
+                            <div className="mb-8 space-y-6">
+                                <div>
+                                    <p className={`text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3 ${index % 2 === 1 ? 'text-right' : ''}`}>
+                                        Tech Stack
+                                    </p>
+                                    <div className={`flex flex-wrap gap-2 ${index % 2 === 1 ? 'justify-end' : ''}`}>
+                                        {project.techStack.map(stack => (
+                                            <span key={stack} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
+                                                {stack}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className={`text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3 ${index % 2 === 1 ? 'text-right' : ''}`}>
+                                        Key Features
+                                    </p>
+                                    <ul className={`list-disc list-inside space-y-2 text-gray-400 text-lg leading-relaxed ${index % 2 === 1 ? 'text-right' : ''}`}>
+                                        {project.features.map(feature => (
+                                            <li key={feature}>{feature}</li>
+                                        ))}
+                                    </ul>
+                                </div>
                             </div>
 
-                            <div className={`flex items-center gap-4 ${index % 2 === 1 ? 'justify-end' : ''}`}>
+                            <div className={`flex items-center gap-6 ${index % 2 === 1 ? 'justify-end' : ''}`}>
+                                <a
+                                    href={project.github}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 text-white hover:text-google-blue transition-colors group/link"
+                                >
+                                    <Github className="w-4 h-4" />
+                                    <span className="border-b border-transparent group-hover/link:border-google-blue">GitHub</span>
+                                </a>
                                 <a 
                                     href={project.link} 
                                     onClick={(e) => { e.preventDefault(); setIsComingSoonOpen(true); }}
