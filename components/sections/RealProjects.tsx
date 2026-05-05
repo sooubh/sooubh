@@ -191,8 +191,8 @@ export const RealProjects: React.FC = () => {
                                     <ul className="space-y-2 text-gray-400 text-lg leading-relaxed">
                                         {project.features.map(feature => (
                                             <li key={feature} className={`flex gap-3 ${index % 2 === 1 ? 'justify-end' : ''}`}>
-                                                <span className="mt-1 text-gray-500">•</span>
-                                                <span className={index % 2 === 1 ? 'text-right' : ''}>{feature}</span>
+                                                <span className="mt-1 text-gray-500" aria-hidden="true">&bull;</span>
+                                                <span>{feature}</span>
                                             </li>
                                         ))}
                                     </ul>
