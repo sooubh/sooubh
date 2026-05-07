@@ -61,7 +61,7 @@ export const Building: React.FC = () => {
   const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
 
   return (
-    <section className="min-h-screen py-24 relative z-10 bg-transparent flex flex-col justify-center">
+    <section className="py-24 relative z-10 bg-transparent">
       
       {/* Background Decor */}
       <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-google-green/10 rounded-full blur-[100px] pointer-events-none" />
@@ -69,7 +69,7 @@ export const Building: React.FC = () => {
       <div className="container mx-auto px-6 max-w-7xl">
         
         {/* Header */}
-        <div className="mb-20 md:flex md:items-end md:justify-between">
+        <div className="mb-20 md:flex md:items-end md:justify-between md:gap-8">
             <div>
                  <h2 className="text-sm font-bold text-google-green uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                     <span className="w-8 h-px bg-google-green"></span>
@@ -79,7 +79,7 @@ export const Building: React.FC = () => {
                     The <span className="text-transparent bg-clip-text bg-gradient-to-r from-google-green to-emerald-400">Lab</span>
                 </h3>
             </div>
-            <p className="text-gray-400 max-w-md text-right mt-4 md:mt-0 leading-relaxed">
+            <p className="text-gray-400 max-w-md md:ml-auto md:text-right mt-4 md:mt-0 leading-relaxed">
                 A glimpse into my current experiments, engineering thoughts, and open-source contributions.
             </p>
         </div>
