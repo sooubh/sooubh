@@ -55,6 +55,7 @@ const TerminalLine = ({ text, delay = 0 }: { text: string; delay?: number }) => 
 };
 
 import { ComingSoonModal } from '../ui/ComingSoonModal';
+import { GitHubActivityPanel } from './github/GitHubActivityPanel';
 
 export const Building: React.FC = () => {
   const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
@@ -198,13 +199,15 @@ export const Building: React.FC = () => {
                         </motion.div>
                     </div>
                 </div>
+
+                <GitHubActivityPanel />
             </div>
 
         </div>
 
       </div>
 
-      
+
       <ComingSoonModal 
         isOpen={isComingSoonOpen} 
         onClose={() => setIsComingSoonOpen(false)} 
