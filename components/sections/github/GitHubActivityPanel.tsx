@@ -65,40 +65,137 @@ export const GitHubActivityPanel: React.FC = () => {
   const renderedEvents = useMemo(() => events.slice(0, 6), [events]);
 
   return (
-    <section className="mt-16 space-y-6" id="github-live-activity">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <section className="mt-20 space-y-8" id="github-live-activity">
+      <div className="flex items-center gap-4 mb-2">
+        <div className="h-px flex-grow bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+        <h4 className="text-sm font-mono text-gray-500 uppercase tracking-[0.3em] flex items-center gap-2">
+            <Github className="w-4 h-4" />
+            Github Engineering Feed
+        </h4>
+        <div className="h-px flex-grow bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Object.entries(counters).map(([key, value]) => (
-          <motion.div key={key} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} className="rounded-lg border border-white/10 bg-black/40 p-3">
-            <div className="text-xs uppercase tracking-widest text-gray-400">{key}</div>
-            <div className="text-xl font-bold text-cyan-300">{value}</div>
+          <motion.div 
+            key={key} 
+            initial={{ opacity: 0, y: 10 }} 
+            whileInView={{ opacity: 1, y: 0 }} 
+            viewport={{ once: true }}
+            className="group relative rounded-xl border border-white/5 bg-white/5 p-4 hover:border-cyan-500/30 transition-all duration-300"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+            <div className="relative z-10">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">{key}</div>
+                <div className="text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors">{value}</div>
+            </div>
           </motion.div>
         ))}
       </div>
 
-      <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="rounded-xl border border-cyan-500/20 bg-black/50 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h5 className="text-sm uppercase tracking-[0.25em] text-cyan-300 flex items-center gap-2"><Activity className="w-4 h-4" />Contribution Activity</h5>
-          <button onClick={() => refresh()} className="text-xs text-gray-400 hover:text-cyan-300 transition-colors inline-flex items-center gap-1"><RefreshCcw className="w-3 h-3" />Sync</button>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.98 }} 
+        whileInView={{ opacity: 1, scale: 1 }} 
+        viewport={{ once: true }}
+        className="rounded-xl border border-white/10 bg-black/40 p-6 backdrop-blur-sm relative overflow-hidden group"
+      >
+        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Activity className="w-24 h-24 text-cyan-300" />
         </div>
-        <img src="https://ghchart.rshah.org/00ffff/sooubh" alt="GitHub contribution heatmap" loading="lazy" className="w-full rounded-lg border border-white/10 shadow-[0_0_30px_rgba(0,255,255,0.12)] hover:shadow-[0_0_35px_rgba(0,255,255,0.35)] transition-shadow duration-300" />
+        
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4 relative z-10">
+          <div>
+            <div className="flex items-center gap-3">
+                <h5 className="text-lg font-bold text-white">
+                    Contribution Heatmap
+                </h5>
+                {error && (
+                    <span className={`text-[9px] px-2 py-0.5 rounded-full border ${
+                        error === 'cached' ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' : 'bg-red-500/10 border-red-500/20 text-red-400'
+                    } uppercase font-bold tracking-tighter`}>
+                        {error === 'cached' ? 'Data Cached' : 'Offline Preview'}
+                    </span>
+                )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1 font-mono">Real-time git activity visualization</p>
+          </div>
+          <button 
+            onClick={() => refresh()} 
+            className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-300 hover:bg-white/10 hover:text-cyan-300 transition-all flex items-center gap-2"
+          >
+            <RefreshCcw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+            Sync Feed
+          </button>
+        </div>
+        
+        <div className="relative rounded-lg border border-white/5 bg-black/20 p-4 overflow-hidden">
+            <img 
+                src="https://ghchart.rshah.org/00ffff/sooubh" 
+                alt="GitHub contribution heatmap" 
+                loading="lazy" 
+                className="w-full h-auto min-h-[100px] object-contain filter drop-shadow-[0_0_15px_rgba(0,255,255,0.1)]" 
+            />
+        </div>
       </motion.div>
 
-      <div className="grid lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 space-y-4">
-          {loading ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-24 rounded-xl bg-white/5 animate-pulse border border-white/10" />) : renderedEvents.map((event, index) => <ActivityCard key={event.id} event={event} index={index} />)}
-          {error ? <p className="text-xs text-red-400">GitHub activity unavailable: {error}</p> : null}
+      <div className="grid lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <GitBranch className="w-4 h-4 text-purple-400" />
+            <h6 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Latest Commits</h6>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {loading ? Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-32 rounded-xl bg-white/5 animate-pulse border border-white/10" />
+            )) : renderedEvents.slice(0, 4).map((event, index) => (
+                <ActivityCard key={event.id} event={event} index={index} />
+            ))}
+          </div>
         </div>
 
-        <div className="lg:col-span-5 rounded-xl border border-white/10 bg-black/70 overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/10 bg-white/5 flex items-center justify-between">
-            <span className="text-xs font-mono text-gray-300">dev-terminal://live-feed</span>
-            <span className="text-xs text-green-300 inline-flex items-center gap-1"><CircleDot className="w-3 h-3 animate-pulse" />{statusLabels[statusIndex]}</span>
+        <div className="lg:col-span-4">
+           <div className="flex items-center gap-3 mb-4">
+            <Activity className="w-4 h-4 text-emerald-400" />
+            <h6 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Live Status</h6>
           </div>
-          <div className="p-4 font-mono text-sm space-y-2">
-            <motion.div key={logIndex} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="text-green-400">
-              &gt; {terminalLogs[logIndex]}<span className="inline-block w-2 h-4 bg-cyan-300 ml-1 animate-pulse align-middle" />
-            </motion.div>
-            <div className="pt-2 border-t border-white/10 text-xs text-gray-400">Active repositories: {activeRepos.join(' • ') || 'loading...'}</div>
+          <div className="rounded-xl border border-white/10 bg-black/60 overflow-hidden h-[calc(100%-2rem)] flex flex-col">
+            <div className="px-4 py-3 border-b border-white/5 bg-white/5 flex items-center justify-between">
+                <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">Status Monitor</span>
+                <span className="text-[10px] text-cyan-300 font-mono inline-flex items-center gap-1.5 bg-cyan-300/10 px-2 py-0.5 rounded-full border border-cyan-300/20">
+                    <CircleDot className="w-2.5 h-2.5 animate-pulse" />
+                    {statusLabels[statusIndex]}
+                </span>
+            </div>
+            <div className="p-5 font-mono text-xs md:text-sm flex-grow">
+                <div className="space-y-3">
+                    <motion.div 
+                        key={logIndex} 
+                        initial={{ opacity: 0, x: -10 }} 
+                        animate={{ opacity: 1, x: 0 }} 
+                        className="text-cyan-400 flex items-start gap-2"
+                    >
+                        <span className="text-gray-600">$</span>
+                        <span>{terminalLogs[logIndex]}</span>
+                    </motion.div>
+                    <div className="h-px bg-white/5 my-4" />
+                    <div className="space-y-2">
+                        <div className="text-gray-500 text-[10px] uppercase">Active Nodes</div>
+                        <div className="flex flex-wrap gap-2">
+                            {activeRepos.slice(0, 3).map(repo => (
+                                <span key={repo} className="text-[10px] px-2 py-1 bg-white/5 border border-white/10 rounded text-gray-400">
+                                    {repo}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="p-4 bg-white/5 border-t border-white/5">
+                 <div className="flex items-center justify-between text-[10px] font-mono text-gray-600">
+                    <span>UPTIME: 99.9%</span>
+                    <span>LATENCY: 42ms</span>
+                 </div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Award, GraduationCap, Trophy, Star, Medal, Crown, Bookmark, ThumbsUp } from 'lucide-react';
+import { ShieldCheck, Award, GraduationCap, Trophy, Star, Medal, Crown, Bookmark, ThumbsUp, ExternalLink } from 'lucide-react';
 
 export const Achievements: React.FC = () => {
   const achievements = [
@@ -15,60 +15,62 @@ export const Achievements: React.FC = () => {
        color: "bg-google-blue/10 border-google-blue/20",
        glow: "shadow-[0_0_50px_rgba(66,133,244,0.2)]"
     },
-    // Standard Items
     {
-       id: "gen-ai-finalist",
+       id: "hackathon-winner",
+       size: "wide", // col-span-2
+       year: "2024",
+       title: "2x Hackathon Winner",
+       icon: <Trophy className="w-6 h-6 text-google-yellow" />,
+       desc: "Emerging victorious in multiple national-level hackathons, including GenAI Exchange. Specialized in rapid prototyping and high-performance AI integration.",
+       color: "bg-google-yellow/10 border-google-yellow/20"
+    },
+    {
+       id: "playstore",
+       size: "tall", // row-span-2
+       year: "2024",
+       title: "Play Store Publisher",
+       icon: <Award className="w-6 h-6 text-google-green" />,
+       desc: "Successfully engineered and published 2 applications on Google Play Store with thousands of active users.",
+       links: [
+         { name: "Gully Cricket", url: "https://play.google.com/store/apps/details?id=com.sooubh.gullycricket" },
+         { name: "LovinGo", url: "https://play.google.com/store/apps/details?id=com.sooubh.lovingo" }
+       ],
+       color: "bg-google-green/10 border-google-green/20"
+    },
+    {
+       id: "community-host",
        size: "standard",
        year: "2024",
-       title: "GenAI Exchange Finalist",
-       icon: <Trophy className="w-6 h-6 text-google-yellow" />,
-       desc: "Finalist in a global GenAI exchange hackathon.",
-       color: "bg-google-yellow/10 border-google-yellow/20"
+       title: "Community Host",
+       icon: <Medal className="w-6 h-6 text-orange-400" />,
+       desc: "Hosting and leading a thriving tech community with 100+ active members.",
+       color: "bg-orange-500/10 border-orange-500/20"
     },
     {
        id: "btech",
        size: "standard",
        year: "2024-28",
        title: "B.Tech Computer Engg.",
-       icon: <GraduationCap className="w-6 h-6 text-google-green" />,
-       desc: "AI/ML Specialization. Consistent academic performer.",
-       color: "bg-google-green/10 border-google-green/20"
+       icon: <GraduationCap className="w-6 h-6 text-google-blue" />,
+       desc: "AI/ML Specialization. Consistent academic performer and research enthusiast.",
+       color: "bg-google-blue/10 border-google-blue/20"
     },
-    // Filler / "Big" Items
     {
        id: "opensource",
-       size: "wide", // col-span-2
+       size: "standard",
        year: "2023",
-       title: "Open Source Contributor",
+       title: "Open Source",
        icon: <Star className="w-6 h-6 text-purple-400" />,
-       desc: "Active contributor to major React & AI repositories. Merged PRs in Hacktoberfest.",
+       desc: "Active contributor to major React & AI repositories on GitHub.",
        color: "bg-purple-500/10 border-purple-500/20"
     },
     {
-       id: "devfest",
-       size: "standard",
-       year: "2023",
-       title: "DevFest Mumbai",
-       icon: <Crown className="w-6 h-6 text-pink-500" />,
-       desc: "Networked with industry experts and attended sessions on cloud & AI.",
-       color: "bg-pink-500/10 border-pink-500/20"
-    },
-    {
-       id: "community",
-       size: "standard",
-       year: "2023",
-       title: "Community Lead",
-       icon: <Medal className="w-6 h-6 text-orange-400" />,
-       desc: "Grew local tech community and organized meetups.",
-       color: "bg-orange-500/10 border-orange-500/20"
-    },
-    {
        id: "writer",
-       size: "tall", // row-span-2
+       size: "standard",
        year: "2024",
        title: "Tech Writer",
        icon: <Bookmark className="w-6 h-6 text-cyan-400" />,
-       desc: "Writing about GenAI, React Performance, and System Design.",
+       desc: "Writing deep dives into GenAI and system architecture.",
        color: "bg-cyan-500/10 border-cyan-500/20"
     },
     {
@@ -77,7 +79,7 @@ export const Achievements: React.FC = () => {
        year: "2024",
        title: "Continuous Learner",
        icon: <ThumbsUp className="w-6 h-6 text-white" />,
-       desc: "Exploring new technologies and building projects.",
+       desc: "Constantly exploring new tech stacks and building projects.",
        color: "bg-white/10 border-white/20"
     }
   ];
@@ -142,9 +144,26 @@ export const Achievements: React.FC = () => {
                                 {item.title}
                             </h4>
                             
-                            <p className="text-gray-400 text-sm leading-relaxed">
+                            <p className="text-gray-400 text-sm leading-relaxed mb-4">
                                 {item.desc}
                             </p>
+
+                            {item.links && (
+                                <div className="flex flex-wrap gap-2 mt-auto">
+                                    {item.links.map((link, i) => (
+                                        <a 
+                                            key={i} 
+                                            href={link.url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="inline-flex items-center gap-1.5 text-[10px] font-bold text-google-green hover:text-white transition-colors bg-google-green/10 px-2 py-1 rounded border border-google-green/20"
+                                        >
+                                            {link.name} <ExternalLink className="w-2.5 h-2.5" />
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                         
                         {/* Decorative Icon Background */}

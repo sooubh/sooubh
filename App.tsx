@@ -4,6 +4,8 @@ import { Home } from './components/pages/Home';
 import { Services } from './components/pages/Services';
 import { ContactPage } from './components/pages/ContactPage';
 import { GeminiAmbassador } from './components/pages/GeminiAmbassador';
+import { BlogList } from './components/pages/BlogList';
+import { BlogPost } from './components/pages/BlogPost';
 import './types';
 
 function App() {
@@ -14,6 +16,8 @@ function App() {
         <Route path="/gemini" element={<GeminiAmbassador />} />
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/blog" element={<BlogList />} />
+        <Route path="/blog/:id" element={<BlogPost />} />
       </Routes>
     </Router>
   );

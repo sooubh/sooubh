@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const GITHUB_EVENTS_URL = 'https://api.github.com/users/sooubh/events';
-const CACHE_KEY = 'sooubh-github-events-v1';
-const CACHE_TTL = 1000 * 60 * 5;
+const CACHE_KEY = 'sooubh-github-events-v3';
+const CACHE_TTL = 1000 * 60 * 30; // 30 minutes to stay safe from rate limits
 
 export type GithubEventItem = {
   id: string;
@@ -22,14 +22,51 @@ type GithubState = {
   lastSynced: number | null;
 };
 
+const MOCK_EVENTS: GithubEventItem[] = [
+  {
+    id: 'mock-1',
+    type: 'PushEvent',
+    repo: 'sooubh/portfolio',
+    commitMessage: 'Refined terminal interactivity and real-time logs',
+    commitCount: 1,
+    branch: 'main',
+    timestamp: new Date().toISOString(),
+  },
+  {
+    id: 'mock-2',
+    type: 'CreateEvent',
+    repo: 'sooubh/neural-search',
+    commitMessage: 'Created repository: neural-search',
+    commitCount: 1,
+    branch: 'main',
+    timestamp: new Date(Date.now() - 3600000).toISOString(),
+  }
+];
+
 const normalizeEvent = (event: any): GithubEventItem => {
   const commits = event?.payload?.commits ?? [];
+  let message = 'Activity updated';
+  
+  if (event.type === 'PushEvent') {
+    message = commits[0]?.message ?? 'Pushed changes';
+  } else if (event.type === 'PullRequestEvent') {
+    message = `${event.payload.action} PR: ${event.payload.pull_request.title}`;
+  } else if (event.type === 'IssuesEvent') {
+    message = `${event.payload.action} issue: ${event.payload.issue.title}`;
+  } else if (event.type === 'CreateEvent') {
+    message = `Created ${event.payload.ref_type}: ${event.payload.ref || event.repo.name}`;
+  } else if (event.type === 'WatchEvent') {
+    message = `Starred repository`;
+  } else if (event.type === 'ForkEvent') {
+    message = `Forked repository`;
+  }
+
   return {
     id: event.id,
     type: event.type,
     repo: event?.repo?.name ?? 'unknown/repo',
-    commitMessage: commits[0]?.message ?? event?.payload?.action ?? 'Repository activity updated',
-    commitCount: commits.length,
+    commitMessage: message,
+    commitCount: commits.length || 1,
     branch: event?.payload?.ref?.split('/').pop() ?? 'main',
     timestamp: event.created_at,
   };
@@ -46,11 +83,20 @@ export const useGithubActivity = () => {
 
   const fetchGithubEvents = useCallback(async (silent = false) => {
     if (!silent) setState((prev) => ({ ...prev, loading: true, error: null }));
+    
     try {
       const response = await fetch(GITHUB_EVENTS_URL, {
-        headers: { Accept: 'application/vnd.github+json' },
+        headers: { 
+          'Accept': 'application/vnd.github+json',
+        },
+        signal: AbortSignal.timeout(5000) 
       });
-      if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
+
+      if (response.status === 403 || response.status === 429) {
+        throw new Error('rate_limit');
+      }
+
+      if (!response.ok) throw new Error(`api_err_${response.status}`);
 
       const payload = await response.json();
       const normalized = payload.slice(0, 12).map(normalizeEvent);
@@ -66,12 +112,28 @@ export const useGithubActivity = () => {
         error: null,
         lastSynced: now,
       });
-    } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch GitHub activity',
-      }));
+    } catch (error: any) {
+      console.warn('GitHub Sync:', error.message);
+      
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setState({
+          events: parsed.normalized,
+          activeRepos: parsed.activeRepos,
+          loading: false,
+          error: 'cached',
+          lastSynced: parsed.now,
+        });
+      } else {
+        setState({
+          events: MOCK_EVENTS,
+          activeRepos: ['sooubh/portfolio', 'sooubh/neural-search'],
+          loading: false,
+          error: 'offline',
+          lastSynced: Date.now(),
+        });
+      }
     }
   }, []);
 
