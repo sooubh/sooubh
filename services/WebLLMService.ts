@@ -1,7 +1,7 @@
 import { CreateMLCEngine, MLCEngine, InitProgressReport, ChatCompletionMessageParam } from "@mlc-ai/web-llm";
 import { content } from '../lib/content';
 
-const SELECTED_MODEL = "Llama-3.2-1B-Instruct-q4f16_1";
+const SELECTED_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
 
 export const SYSTEM_INSTRUCTION = `You are Gem, the official local AI guide for Sourabh Singh's Portfolio.
 Your goal is to be helpful, witty, and engaging.
