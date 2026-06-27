@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface UseTextToSpeechReturn {
     speak: (text: string) => void;
@@ -10,6 +10,7 @@ interface UseTextToSpeechReturn {
 export const useTextToSpeech = (): UseTextToSpeechReturn => {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [supported, setSupported] = useState(false);
+    const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -28,6 +29,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
+        utteranceRef.current = utterance;
         utterance.lang = 'en-US';
         utterance.rate = 1; // Normal speed
         utterance.pitch = 1;
@@ -39,10 +41,12 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
         utterance.onend = () => {
             console.log("useTextToSpeech: Finished speaking");
             setIsSpeaking(false);
+            utteranceRef.current = null;
         };
         utterance.onerror = (e) => {
             console.error("useTextToSpeech: Error speaking", e);
             setIsSpeaking(false);
+            utteranceRef.current = null;
         };
 
         window.speechSynthesis.speak(utterance);

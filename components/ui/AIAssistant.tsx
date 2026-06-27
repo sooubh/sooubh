@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Mic, Send, X, Sparkles, ChevronDown, User, Bot, Loader2, ExternalLink, MapPin, Volume2, VolumeX } from 'lucide-react';
-import { GeminiService } from '../../services/GeminiService';
+import { WebLLMService } from '../../services/WebLLMService';
 import { VoiceVisualizer } from './VoiceVisualizer';
 
 // Types for chat messages
@@ -14,7 +14,7 @@ interface Message {
 export const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: "Hi! I'm Gem, your guide. Ask me about the Ambassador program, features, or I can take you anywhere on the page!" }
+    { role: 'model', text: "Hi! I'm Gem, your local AI guide. Ask me about Sourabh's projects, skills, or experience!" }
   ]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -53,130 +53,79 @@ export const AIAssistant: React.FC = () => {
     // Simple cleanup to avoid reading markdown
     const cleanText = text.replace(/[*#_`]/g, '');
 
-    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 1.0;
-    utterance.pitch = 1;
-    
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
-
     window.speechSynthesis.speak(utterance);
   };
 
   const stopSpeaking = () => {
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
   };
 
-
-
   const handleSendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isThinking) return;
 
     const userMsg = input;
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setIsThinking(true);
 
     try {
       stopSpeaking();
-      
-      // Use the GeminiService to get the response stream
-      const responseStream = await GeminiService.streamResponse(messages, userMsg);
 
-      let fullText = "";
-      let toolResponseText = "";
-      let functionCalls: any[] = [];
-      let groundingSources: { title: string; uri: string }[] = [];
-      
-      // Initialize a new empty message for the model
-      setMessages(prev => [...prev, { role: 'model', text: '' }]);
-
-      for await (const chunk of responseStream) {
-        // Collect Text
-        if (chunk.text) {
-          fullText += chunk.text;
-          // Update the last message with the current accumulated text
+      // Check if WebLLM is loaded
+      if (!WebLLMService.isLoaded()) {
+        setMessages(prev => [...prev, { role: 'model', text: 'Initializing local LLM on WebGPU...' }]);
+        
+        await WebLLMService.initEngine((report) => {
           setMessages(prev => {
             const newArr = [...prev];
-            newArr[newArr.length - 1] = { ...newArr[newArr.length - 1], text: fullText };
+            newArr[newArr.length - 1] = { ...newArr[newArr.length - 1], text: `Local AI: ${report.text}` };
             return newArr;
           });
-        }
-
-        // Collect Function Calls (usually in the last chunk or distinct chunks)
-        if (chunk.functionCalls) {
-           functionCalls = [...functionCalls, ...chunk.functionCalls];
-        }
-
-        // Collect Grounding Metadata
-        if (chunk.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-          const chunks = chunk.candidates[0].groundingMetadata.groundingChunks;
-          chunks.forEach((c: any) => {
-            if (c.web?.uri && c.web?.title) {
-              groundingSources.push({ title: c.web.title, uri: c.web.uri });
-            }
-          });
-        }
-      }
-      
-      if (fullText) {
-          speakText(fullText);
-      }
-
-      // Handle Function Calls (Executed after stream to prevent UI jumping)
-      if (functionCalls.length > 0) {
-        for (const call of functionCalls) {
-          if (call.name === 'scrollToSection') {
-            // @ts-ignore
-            scrollToSection(call.args.sectionId);
-            if (!fullText) toolResponseText = `Taking you to the ${call.args.sectionId} section...`;
-          }
-        }
-        
-        // If there was no text from the model (only tool use), show a confirmation
-        if (!fullText && toolResponseText) {
-           setMessages(prev => {
-              const newArr = [...prev];
-              newArr[newArr.length - 1] = { ...newArr[newArr.length - 1], text: toolResponseText };
-              return newArr;
-           });
-           speakText(toolResponseText);
-        }
-      }
-
-      // Update sources if found
-      if (groundingSources.length > 0) {
-        setMessages(prev => {
-          const newArr = [...prev];
-          // Deduplicate sources
-          const uniqueSources = Array.from(new Set(groundingSources.map(s => s.uri)))
-             .map(uri => groundingSources.find(s => s.uri === uri)!);
-          
-          newArr[newArr.length - 1] = { 
-            ...newArr[newArr.length - 1], 
-            groundingSources: uniqueSources 
-          };
-          return newArr;
         });
       }
 
-    } catch (error) {
+      // Now create a new response placeholder
+      setMessages(prev => [...prev, { role: 'model', text: 'Thinking...' }]);
+
+      let fullText = "";
+      
+      await WebLLMService.streamResponse(
+        messages.map(m => ({ role: m.role, text: m.text })),
+        userMsg,
+        (chunkText) => {
+          setIsThinking(false);
+          fullText = chunkText;
+          
+          // Check for scroll commands
+          // e.g. [SCROLL:sectionId]
+          const scrollMatch = chunkText.match(/\[SCROLL:([^\]]+)\]/);
+          if (scrollMatch) {
+            const sectionId = scrollMatch[1].trim();
+            scrollToSection(sectionId);
+            fullText = chunkText.replace(/\[SCROLL:[^\]]+\]/g, "");
+          }
+
+          setMessages(prev => {
+            const newArr = [...prev];
+            newArr[newArr.length - 1] = { ...newArr[newArr.length - 1], text: fullText || 'Thinking...' };
+            return newArr;
+          });
+        }
+      );
+
+      if (fullText) {
+        speakText(fullText);
+      }
+    } catch (error: any) {
       console.error("AI Error:", error);
-      setMessages(prev => {
-         // If the last message was the empty loading one, replace it. Otherwise append.
-         const lastMsg = prev[prev.length - 1];
-         if (lastMsg.role === 'model' && lastMsg.text === '') {
-             const newArr = [...prev];
-             newArr[newArr.length - 1] = { role: 'model', text: "I'm having trouble connecting right now. Please try again." };
-             return newArr;
-         } else {
-             return [...prev, { role: 'model', text: "I'm having trouble connecting right now. Please try again." }];
-         }
-      });
-    } finally {
+      setMessages(prev => [...prev, { role: 'model', text: `Failed to load WebGPU local model. Ensure WebGPU is enabled in your browser. (Error: ${error.message || error})` }]);
       setIsThinking(false);
     }
   };
@@ -197,12 +146,6 @@ export const AIAssistant: React.FC = () => {
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
-        // Small delay to allow user to see text before sending
-        setTimeout(() => {
-            // Check if input was updated (a bit hacky in React state, but sufficient for simple voice command)
-            // Ideally we'd call handleSendMessage directly but input state might not be updated yet in closure.
-            // For now, we just set input. User can hit send.
-        }, 500);
       };
       recognition.onerror = (event: any) => {
          console.error("Speech recognition error", event.error);
@@ -224,7 +167,10 @@ export const AIAssistant: React.FC = () => {
         <motion.div
           drag
           dragMomentum={false}
-          initial={{ x: window.innerWidth - 100, y: window.innerHeight - 100 }}
+          initial={{ 
+            x: typeof window !== 'undefined' ? window.innerWidth - 100 : 0, 
+            y: typeof window !== 'undefined' ? window.innerHeight - 100 : 0 
+          }}
           className="pointer-events-auto absolute"
           style={{ touchAction: "none" }}
         >

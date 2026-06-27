@@ -84,13 +84,17 @@ export const useGithubActivity = () => {
   const fetchGithubEvents = useCallback(async (silent = false) => {
     if (!silent) setState((prev) => ({ ...prev, loading: true, error: null }));
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     try {
       const response = await fetch(GITHUB_EVENTS_URL, {
         headers: { 
           'Accept': 'application/vnd.github+json',
         },
-        signal: AbortSignal.timeout(5000) 
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       if (response.status === 403 || response.status === 429) {
         throw new Error('rate_limit');
@@ -100,7 +104,7 @@ export const useGithubActivity = () => {
 
       const payload = await response.json();
       const normalized = payload.slice(0, 12).map(normalizeEvent);
-      const activeRepos = Array.from(new Set(normalized.map((item: GithubEventItem) => item.repo))).slice(0, 6);
+      const activeRepos = Array.from(new Set(normalized.map((item: GithubEventItem) => item.repo))).slice(0, 6) as string[];
       const now = Date.now();
 
       localStorage.setItem(CACHE_KEY, JSON.stringify({ now, normalized, activeRepos }));
@@ -113,6 +117,7 @@ export const useGithubActivity = () => {
         lastSynced: now,
       });
     } catch (error: any) {
+      clearTimeout(timeoutId);
       console.warn('GitHub Sync:', error.message);
       
       const cached = localStorage.getItem(CACHE_KEY);

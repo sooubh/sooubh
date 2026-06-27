@@ -21,7 +21,9 @@ export const Planet: React.FC<PlanetProps> = ({ position, color, label, onClick,
         
         // Lerp scale for smooth animation without extra libraries
         const targetScale = hovered ? scale * 1.2 : scale;
-        meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), delta * 5);
+        const currentScale = meshRef.current.scale.x;
+        const newScale = THREE.MathUtils.lerp(currentScale, targetScale, delta * 5);
+        meshRef.current.scale.set(newScale, newScale, newScale);
         
         // Lerp emissive intensity
         const material = meshRef.current.material as THREE.MeshStandardMaterial;

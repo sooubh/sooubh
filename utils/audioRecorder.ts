@@ -37,6 +37,7 @@ export class AudioRecorder {
 
     stop() {
         if (this.processor) {
+            this.processor.onaudioprocess = null;
             this.processor.disconnect();
             this.processor = null;
         }

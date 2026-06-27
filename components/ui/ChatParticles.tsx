@@ -6,14 +6,17 @@ interface ChatParticlesProps {
 }
 
 export const ChatParticles: React.FC<ChatParticlesProps> = ({ count = 20 }) => {
-  const particles = Array.from({ length: count }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 4 + 2,
-    duration: Math.random() * 3 + 2,
-    delay: Math.random() * 2,
-  }));
+  const particles = React.useMemo(() => {
+    return Array.from({ length: count }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 2,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 2,
+      targetX: Math.random() * 20 - 10,
+    }));
+  }, [count]);
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -31,7 +34,7 @@ export const ChatParticles: React.FC<ChatParticlesProps> = ({ count = 20 }) => {
           }}
           animate={{
             y: [0, -30, 0],
-            x: [0, Math.random() * 20 - 10, 0],
+            x: [0, particle.targetX, 0],
             opacity: [0, 1, 0],
             scale: [0, 1, 0],
           }}

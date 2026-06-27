@@ -135,13 +135,6 @@ export const Footer: React.FC = () => {
             </p>
           </div>
         </div>
-
-        {/* SEO Keywords Footer (Hidden but indexed) */}
-        <div className="sr-only">
-          Sourabh Singh | sourabh | AI Builder & Developer | Student Ambassador | 
-          AI Developer | Full Stack Developer | React Developer | SITRC | Computer Engineering | 
-          AI Integration | AI Tools | AI Assistant | Student Developer | Tech Ambassador
-        </div>
       </div>
     </footer>
   );

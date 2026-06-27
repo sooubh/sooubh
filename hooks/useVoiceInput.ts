@@ -65,6 +65,18 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
                 setError('Speech recognition not supported in this browser.');
             }
         }
+
+        return () => {
+            if (recognitionRef.current) {
+                try {
+                    recognitionRef.current.abort();
+                } catch (_) {}
+                recognitionRef.current.onstart = null;
+                recognitionRef.current.onend = null;
+                recognitionRef.current.onresult = null;
+                recognitionRef.current.onerror = null;
+            }
+        };
     }, []);
 
     const startListening = useCallback(() => {
@@ -75,18 +87,24 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
                 recognitionRef.current.start();
             } catch (e) {
                 console.error("Error starting speech recognition:", e);
-                // If already started, we might get an error, ignore it or restart
-                if (isListening) {
+                // If native engine is already active but React state is out of sync, force stop and restart
+                try {
                     recognitionRef.current.stop();
-                    setTimeout(() => recognitionRef.current.start(), 100);
-                }
+                } catch (_) {}
+                setTimeout(() => {
+                    try {
+                        recognitionRef.current.start();
+                    } catch (_) {}
+                }, 200);
             }
         }
     }, [isListening]);
 
     const stopListening = useCallback(() => {
         if (recognitionRef.current && isListening) {
-            recognitionRef.current.stop();
+            try {
+                recognitionRef.current.stop();
+            } catch (_) {}
         }
     }, [isListening]);
 

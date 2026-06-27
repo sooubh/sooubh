@@ -26,7 +26,7 @@ import { useGalaxyStore } from '../../lib/store';
 export const Home: React.FC = () => {
     const location = useLocation();
     const [isLoading, setIsLoading] = React.useState(true);
-    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+    const [isMobile, setIsMobile] = useState(false);
     const setSection = useGalaxyStore((state) => state.setSection);
 
     useEffect(() => {
@@ -34,6 +34,7 @@ export const Home: React.FC = () => {
     }, [setSection]);
 
     useEffect(() => {
+        setIsMobile(window.innerWidth < 768);
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, Cpu, ArrowRight, BookOpen, Clock, Zap, GitCommit, Activity, ChevronRight, Hash, Loader2, ShieldCheck, Server, Globe } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -19,7 +19,7 @@ const InteractiveTerminal = () => {
     }, []);
 
     // Random System Tasks
-    const systemTasks = [
+    const systemTasks = useMemo(() => [
         () => {
             addLine({ type: 'cmd', text: 'system-health --check' });
             setTimeout(() => addLine({ type: 'sys', text: <div className="text-[10px] text-emerald-500/80 flex items-center gap-2"><ShieldCheck className="w-3 h-3"/> All systems operational. CPU: 12% | RAM: 4.2GB</div> }), 800);
@@ -32,7 +32,7 @@ const InteractiveTerminal = () => {
             addLine({ type: 'cmd', text: 'ls /workspace/active-projects' });
             setTimeout(() => addLine({ type: 'resp', text: <div className="text-[10px] text-gray-500">{activeRepos.slice(0, 3).join('  ')}</div> }), 500);
         }
-    ];
+    ], [addLine, activeRepos]);
 
     // Initial sequence
     useEffect(() => {

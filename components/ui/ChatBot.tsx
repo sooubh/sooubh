@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Mic, MicOff, Sparkles, Volume2, VolumeX, Radio, RotateCcw } from 'lucide-react';
-import { GeminiService } from '../../services/GeminiService';
-import { GeminiLiveService, LiveCallbacks } from '../../services/GeminiLiveService';
+import { WebLLMService } from '../../services/WebLLMService';
 import { ChatMessage } from '../../types';
 import { useVoiceInput } from '../../hooks/useVoiceInput';
 import { useTextToSpeech } from '../../hooks/useTextToSpeech';
@@ -89,7 +88,6 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
 export const ChatBot: React.FC = () => {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const liveServiceRef = useRef<GeminiLiveService | null>(null);
   const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -97,62 +95,29 @@ export const ChatBot: React.FC = () => {
   const { isListening, transcript, startListening, stopListening, resetTranscript } = useVoiceInput();
   const { speak, stop: stopSpeaking, isSpeaking: isTtsSpeaking, supported: ttsSupported } = useTextToSpeech();
 
-  // Initialize Live Service
-  useEffect(() => {
-    liveServiceRef.current = new GeminiLiveService();
-    return () => {
-        liveServiceRef.current?.stopSession();
-    };
-  }, []);
-
-  // Connect/Disconnect Live Service based on mode
+  // Connect/Disconnect Local Live Service based on mode
   useEffect(() => {
     if (state.isLiveMode && !state.isLiveConnected && state.isOpen) {
         connectLive();
     } else if ((!state.isLiveMode || !state.isOpen) && state.isLiveConnected) {
         disconnectLive();
     }
-  }, [state.isLiveMode, state.isOpen]);
+  }, [state.isLiveMode, state.isOpen, state.isLiveConnected]);
 
   const connectLive = async () => {
       try {
-        const callbacks: LiveCallbacks = {
-            onOpen: () => {
-                dispatch({ type: 'SET_LIVE_CONNECTED', payload: true });
-            },
-            onMessage: (message) => {
-                // Handle Native Audio
-                if (message.serverContent?.modelTurn?.parts) {
-                    for (const part of message.serverContent.modelTurn.parts) {
-                        if (part.inlineData && part.inlineData.mimeType.startsWith('audio/pcm')) {
-                            liveServiceRef.current?.playAudio(part.inlineData.data);
-                        }
-                    }
-                }
-            },
-            onError: (e) => {
-                console.error("Live Session Error", e);
-                dispatch({ type: 'SET_ERROR', payload: "Connection to AI Voice lost. Retrying..." });
-                dispatch({ type: 'SET_LIVE_CONNECTED', payload: false });
-            },
-            onClose: () => {
-                dispatch({ type: 'SET_LIVE_CONNECTED', payload: false });
-            }
-        };
-        
-        await liveServiceRef.current?.startSession(
-            "You are Gem, a helpful AI assistant.", 
-            callbacks
-        );
+        dispatch({ type: 'SET_LIVE_CONNECTED', payload: true });
+        startListening();
       } catch (e) {
           console.error("Failed to connect live", e);
-          dispatch({ type: 'SET_ERROR', payload: "Failed to connect to Live Service." });
+          dispatch({ type: 'SET_ERROR', payload: "Failed to initialize local voice engine." });
           dispatch({ type: 'TOGGLE_LIVE', payload: false });
       }
   };
 
   const disconnectLive = () => {
-      liveServiceRef.current?.stopSession();
+      stopListening();
+      stopSpeaking();
       dispatch({ type: 'SET_LIVE_CONNECTED', payload: false });
   };
 
@@ -161,18 +126,40 @@ export const ChatBot: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [state.messages, state.isLoading, state.error]);
 
-  // Handle voice transcript (Standard Mode)
+  // Voice loop: when TTS finishes, start listening again in live voice mode
   useEffect(() => {
-    if (transcript && !state.isLiveMode && state.isOpen) {
-      dispatch({ type: 'SET_INPUT', payload: transcript });
+    if (state.isLiveMode && !isTtsSpeaking && state.isOpen && !state.isLoading && state.isLiveConnected) {
+      const timer = setTimeout(() => {
+        startListening();
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [isTtsSpeaking, state.isLiveMode, state.isOpen, state.isLoading, state.isLiveConnected]);
+
+  // Handle voice transcript (Standard & Live Mode)
+  useEffect(() => {
+    if (transcript && state.isOpen) {
+      if (state.isLiveMode) {
+        // Handled by the auto-send effect below
+      } else {
+        dispatch({ type: 'SET_INPUT', payload: transcript });
+      }
     }
   }, [transcript, state.isLiveMode, state.isOpen]);
 
-  // Send Message Logic
-  const handleSend = async () => {
-    if (!state.inputValue.trim() || state.isLoading) return;
+  useEffect(() => {
+    if (!isListening && transcript && state.isLiveMode && state.isOpen && !state.isLoading) {
+      const userMsg = transcript;
+      resetTranscript();
+      handleSend(userMsg);
+    }
+  }, [isListening, transcript, state.isLiveMode, state.isOpen, state.isLoading]);
 
-    const userMsg = state.inputValue.trim();
+  // Send Message Logic
+  const handleSend = async (msgOverride?: string) => {
+    const userMsg = (msgOverride || state.inputValue).trim();
+    if (!userMsg || state.isLoading) return;
+
     dispatch({ type: 'SET_INPUT', payload: '' });
     resetTranscript();
     if (isListening) stopListening();
@@ -181,52 +168,55 @@ export const ChatBot: React.FC = () => {
     dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
-      const stream = await GeminiService.streamResponse(state.messages, userMsg);
-      
-      let fullResponse = '';
-      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'assistant', text: '' } });
+      stopSpeaking();
 
-      for await (const chunk of stream) {
-        // Robust Chunk Parsing
-        let chunkText = '';
-        const candidate = (chunk as any).candidates?.[0];
+      // Check if WebLLM is loaded
+      if (!WebLLMService.isLoaded()) {
+        dispatch({ type: 'ADD_MESSAGE', payload: { role: 'assistant', text: 'Initializing local LLM on WebGPU...' } });
         
-        if (candidate?.content?.parts?.[0]?.text) {
-             chunkText = candidate.content.parts[0].text;
-        }
-
-        if (chunkText) {
-            fullResponse += chunkText;
-            dispatch({ type: 'UPDATE_LAST_MESSAGE', payload: fullResponse });
-        }
-
-        // Function Calls
-        // (Simplified for robustness, can re-add if needed but checking for nulls)
-        const parts = candidate?.content?.parts;
-        if (parts) {
-            for(const part of parts) {
-                if (part.functionCall && part.functionCall.name === 'scrollToSection') {
-                    const sectionId = part.functionCall.args?.sectionId;
-                    if (sectionId) {
-                        const el = document.getElementById(sectionId);
-                        if (el) {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            console.log(`🚀 Navigating to section: ${sectionId}`);
-                        }
-                    }
-                }
-            }
-        }
+        await WebLLMService.initEngine((report) => {
+          dispatch({ 
+            type: 'UPDATE_LAST_MESSAGE', 
+            payload: `Local AI: ${report.text}` 
+          });
+        });
       }
 
-      // TTS if enabled
-      if (state.isVoiceEnabled && fullResponse) {
+      // Add thinking placeholder
+      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'assistant', text: 'Thinking...' } });
+
+      let fullResponse = '';
+      
+      await WebLLMService.streamResponse(
+        state.messages.map(m => ({ role: m.role, text: m.text })),
+        userMsg,
+        (chunkText) => {
+          fullResponse = chunkText;
+          
+          // Check for scroll commands
+          // e.g. [SCROLL:sectionId]
+          const scrollMatch = chunkText.match(/\[SCROLL:([^\]]+)\]/);
+          if (scrollMatch) {
+            const sectionId = scrollMatch[1].trim();
+            const el = document.getElementById(sectionId);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            fullResponse = chunkText.replace(/\[SCROLL:[^\]]+\]/g, "");
+          }
+
+          dispatch({ type: 'UPDATE_LAST_MESSAGE', payload: fullResponse || 'Thinking...' });
+        }
+      );
+
+      // TTS if enabled or in voice mode
+      if ((state.isVoiceEnabled || state.isLiveMode) && fullResponse) {
         speak(fullResponse);
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("ChatBot Error:", error);
-      dispatch({ type: 'SET_ERROR', payload: "Failed to get response. Please try again." });
+      dispatch({ type: 'SET_ERROR', payload: `Failed to load WebGPU local model. Ensure WebGPU is enabled. (Error: ${error.message || error})` });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
@@ -670,7 +660,7 @@ export const ChatBot: React.FC = () => {
                     </motion.button>
 
                     <motion.button
-                      onClick={handleSend}
+                      onClick={() => handleSend()}
                       disabled={!state.inputValue.trim() || state.isLoading}
                       className="p-1.5 sm:p-2 rounded-full text-white disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden touch-manipulation"
                       style={{

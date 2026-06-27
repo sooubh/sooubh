@@ -10,7 +10,9 @@ const timelineData = [
     description: 'Pursuing a comprehensive degree with a focus on Artificial Intelligence, Machine Learning, and Full-Stack Development. Building a strong foundation in algorithms and system design.',
     icon: GraduationCap,
     color: 'text-blue-400',
-    bgColor: 'bg-blue-400/10'
+    bgColor: 'bg-blue-400/10',
+    glowClass: 'from-blue-500/30',
+    badgeClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20'
   },
   {
     year: '2023',
@@ -19,7 +21,9 @@ const timelineData = [
     description: 'Learning the MERN stack, cloud platforms, and modern web technologies (React, TypeScript, Next.js). Started building complex projects and exploring the open-source ecosystem.',
     icon: Code,
     color: 'text-purple-400',
-    bgColor: 'bg-purple-400/10'
+    bgColor: 'bg-purple-400/10',
+    glowClass: 'from-purple-500/30',
+    badgeClass: 'text-purple-400 bg-purple-500/10 border-purple-500/20'
   },
   {
     year: '2024 - Present',
@@ -28,7 +32,9 @@ const timelineData = [
     description: 'Selected to represent AI technologies on campus. Leading workshops on GenAI, mentoring students, and organizing tech events to foster a culture of innovation.',
     icon: Award,
     color: 'text-yellow-400',
-    bgColor: 'bg-yellow-400/10'
+    bgColor: 'bg-yellow-400/10',
+    glowClass: 'from-yellow-500/30',
+    badgeClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
   },
   {
     year: 'Future',
@@ -37,7 +43,9 @@ const timelineData = [
     description: 'Aiming to build scalable AI solutions that solve real-world problems. Passionate about bridging the gap between theoretical research and practical application.',
     icon: Rocket,
     color: 'text-red-400',
-    bgColor: 'bg-red-400/10'
+    bgColor: 'bg-red-400/10',
+    glowClass: 'from-red-500/30',
+    badgeClass: 'text-red-400 bg-red-500/10 border-red-500/20'
   }
 ];
 
@@ -123,9 +131,9 @@ export const Story: React.FC = () => {
                                     `}
                                 >
                                     {/* Hover Glow */}
-                                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-br from-${item.color.split('-')[1]}-500/30 to-transparent`} />
+                                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-br ${item.glowClass} to-transparent`} />
                                     
-                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-mono mb-4 text-${item.color.split('-')[1]}-400 bg-${item.color.split('-')[1]}-500/10 border border-${item.color.split('-')[1]}-500/20`}>
+                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-mono mb-4 ${item.badgeClass}`}>
                                         {item.year}
                                     </span>
                                     
