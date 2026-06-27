@@ -1,7 +1,8 @@
 import { CreateMLCEngine, MLCEngine, InitProgressReport, ChatCompletionMessageParam } from "@mlc-ai/web-llm";
 import { content } from '../lib/content';
 
-const SELECTED_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+const DESKTOP_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+const MOBILE_MODEL = "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
 
 export const SYSTEM_INSTRUCTION = `You are Gem, the official local AI guide for Sourabh Singh's Portfolio.
 Your goal is to be helpful, witty, and engaging.
@@ -29,6 +30,17 @@ class WebLLMServiceClass {
         this.initProgressCallback = callback;
     }
 
+    private getModelId(): string {
+        if (typeof window !== 'undefined') {
+            const isMobile = window.innerWidth < 768 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
+            if (isMobile) {
+                console.log("WebLLM: Mobile device detected. Loading lightweight model:", MOBILE_MODEL);
+                return MOBILE_MODEL;
+            }
+        }
+        return DESKTOP_MODEL;
+    }
+
     public async initEngine(progressCallback?: (report: InitProgressReport) => void): Promise<MLCEngine> {
         if (this.engine) return this.engine;
         if (this.isInitializing) {
@@ -41,11 +53,22 @@ class WebLLMServiceClass {
 
         this.isInitializing = true;
         try {
-            const engine = await CreateMLCEngine(SELECTED_MODEL, {
+            const modelId = this.getModelId();
+            const hasWebGPU = typeof navigator !== 'undefined' && 'gpu' in navigator;
+
+            const engine = await CreateMLCEngine(modelId, {
                 initProgressCallback: (report) => {
-                    console.log("WebLLM Init:", report.text);
-                    if (progressCallback) progressCallback(report);
-                    if (this.initProgressCallback) this.initProgressCallback(report);
+                    let text = report.text;
+                    if (!hasWebGPU) {
+                        text = `[Running on CPU - WebGPU not supported/enabled] ${text}`;
+                    } else if (modelId === MOBILE_MODEL) {
+                        text = `[Lightweight Mobile Mode] ${text}`;
+                    }
+                    console.log("WebLLM Init:", text);
+
+                    const enrichedReport = { ...report, text };
+                    if (progressCallback) progressCallback(enrichedReport);
+                    if (this.initProgressCallback) this.initProgressCallback(enrichedReport);
                 }
             });
             this.engine = engine;
